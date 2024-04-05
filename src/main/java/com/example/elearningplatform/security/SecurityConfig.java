@@ -65,13 +65,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/user/display/**").permitAll());
-        http.authorizeHttpRequests(authorize -> authorize
-
-                .requestMatchers("/user/**", "/get-course/**", "/course/**").hasAnyRole("ADMIN", "USER")
-                .requestMatchers("/check-token/**", "/verifyEmail/**", "/signup/**", "/login/**", "/forget-password/**")
-                .permitAll())
-                .addFilterBefore(authFilter(), UsernamePasswordAuthenticationFilter.class);
+                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll());
+        // http.authorizeHttpRequests(authorize -> authorize
+        // .requestMatchers("/user/**", "/get-course/**",
+        // "/course/**").hasAnyRole("ADMIN", "USER")
+        // .requestMatchers("/check-token/**", "/verifyEmail/**", "/signup/**",
+        // "/login/**", "/forget-password/**")
+        // .permitAll())
+        // .addFilterBefore(authFilter(), UsernamePasswordAuthenticationFilter.class);
         // http.httpBasic(Customizer.withDefaults());
         return http.build();
     }

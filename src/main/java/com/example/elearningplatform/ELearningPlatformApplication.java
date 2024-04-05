@@ -22,7 +22,7 @@ public class ELearningPlatformApplication extends GenerateData
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
-        generateData();
+        // generateData();
         System.out.println("HeLLO IN elearning platform");
 
     }
