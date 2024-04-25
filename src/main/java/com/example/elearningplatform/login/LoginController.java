@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.sql.rowset.serial.SerialException;
-import org.springframework.web.bind.annotation.CrossOrigin;
+// import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -42,7 +42,7 @@ public class LoginController implements ErrorController {
     }
 
     /***************************************************************************************************************/
-@CrossOrigin(origins = "http://localhost:5173")
+// @CrossOrigin(origins = "http://localhost:5173")
     @PostMapping("/custom")
     public Response loginCustom(@RequestBody @Valid LoginRequest loginRequest, BindingResult result,
             HttpServletRequest request)
