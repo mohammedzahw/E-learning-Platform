@@ -75,54 +75,16 @@ public class User implements UserDetails {
     @Column(name = "role")
     private List<Role> roles;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @Builder.Default
     private List<Course> enrolledCourses = new ArrayList<>();
-
-    // @ManyToMany(mappedBy = "instructors", fetch = FetchType.LAZY)
-    // @ToString.Exclude
-    // @Builder.Default
-    // private List<Course> instructedCourses = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_wishlist", joinColumns = {
-            @JoinColumn(name = "user_id") }, inverseJoinColumns = {
-                    @JoinColumn(name = "course_id") })
-    private List<Course> wishList;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_archived", joinColumns = {
-            @JoinColumn(name = "user_id") }, inverseJoinColumns = {
-                    @JoinColumn(name = "course_id") })
-    private List<Course> archivedCourses;
 
     public void enrollCourse(Course course) {
         if(course==null){
             return;
         }
-
         enrolledCourses.add(course);
     }
-public void addToWishList(Course course) {
-    if(course==null){
-        return;
-    }
-
-    wishList.add(course);
-}
-public void addToArchived(Course course) {
-    if(course==null){
-        return;
-    }
-
-    archivedCourses.add(course);
-}
-    // public void addInstructedCourse(Course course) {
-    //     if(course==null){
-    //         return;
-    //     }
-    //     instructedCourses = new ArrayList<>();
-    //     instructedCourses.add(course);
-    // }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

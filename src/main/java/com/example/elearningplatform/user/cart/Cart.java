@@ -29,7 +29,7 @@ public class Cart {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
-    @JoinTable(name = "courses-in-cart", joinColumns = {
+    @JoinTable(name = "courses_in_cart", joinColumns = {
             @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID") }, inverseJoinColumns = {
                     @JoinColumn(name = "CART_ID", referencedColumnName = "ID") })
     private List<Course> courses = new ArrayList<>();
