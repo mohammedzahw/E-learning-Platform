@@ -23,7 +23,8 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig implements WebMvcConfigurer {
+@SuppressWarnings("null")
+public class SecurityConfig {
 
     private final UserRepository userRepository;
 
@@ -58,13 +59,14 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     /***************************************************************************************************** */
-    @Override
-    public void addCorsMappings(@SuppressWarnings("null") CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins("*")
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings( CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("http://localhost:5173");
+            }
+        };
     }
     /***************************************************************************************************** */
 
