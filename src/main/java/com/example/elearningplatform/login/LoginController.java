@@ -42,7 +42,7 @@ public class LoginController implements ErrorController {
     }
 
     /***************************************************************************************************************/
-
+@CrossOrigin(origins = "http://localhost:5173")
     @PostMapping("/custom")
     public Response loginCustom(@RequestBody @Valid LoginRequest loginRequest, BindingResult result,
             HttpServletRequest request)
