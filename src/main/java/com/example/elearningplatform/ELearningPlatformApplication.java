@@ -9,10 +9,8 @@ import lombok.RequiredArgsConstructor;
 
 @SpringBootApplication
 @RequiredArgsConstructor
-@SuppressWarnings({ "unused" })
 public class ELearningPlatformApplication
         implements ApplicationRunner {
-    private final GenerateData generateData;
 
     /*********************************************************************************** */
     public static void main(String[] args) {
@@ -23,58 +21,8 @@ public class ELearningPlatformApplication
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-       
-        // generateData.truncateDtabase();
+        System.out.println("Hello World from Application Runner");
 
-        // System.out.println("strat");
-        // // generateData.createData();
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // generateData.setRelationships();
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
-        // System.out.println("create done");
     }
 }
 
