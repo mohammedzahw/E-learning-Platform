@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.sql.rowset.serial.SerialException;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
