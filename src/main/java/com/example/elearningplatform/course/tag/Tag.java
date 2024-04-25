@@ -1,13 +1,7 @@
 package com.example.elearningplatform.course.tag;
 
-import java.util.List;
-
-import com.example.elearningplatform.course.Course;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,10 +13,20 @@ import lombok.Data;
 @Data
 public class Tag {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
 
     @Column(name = "title")
     private String name;
+    
+    private Integer numberOfCourses;
+
+    public void incrementNumberOfCourses() {
+        this.numberOfCourses++;
+    }
+
+    public void decrementNumberOfCourses() {
+        this.numberOfCourses--;
+    }
 
 }

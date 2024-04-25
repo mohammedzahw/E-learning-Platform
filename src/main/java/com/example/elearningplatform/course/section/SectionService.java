@@ -1,59 +1,55 @@
 package com.example.elearningplatform.course.section;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.example.elearningplatform.base.BaseRepository;
+import com.example.elearningplatform.course.section.lesson.Lesson;
+import com.example.elearningplatform.course.section.lesson.LessonDto;
+import com.example.elearningplatform.course.section.lesson.LessonRepository;
+import com.example.elearningplatform.course.section.lesson.LessonService;
 
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 
 @Service
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class SectionService extends BaseRepository {
-    @Autowired
-    JdbcTemplate jdbcTemplate;
-    /***************************************************************************************** */
-    // public List<Section> getAllSections() {
-    // String sql = "SELECT * FROM section";
-    // return jdbcTemplate.query(sql, new BeanPropertyRowMapper(Section.class));
-    // }
+@Data
+@RequiredArgsConstructor
+public class SectionService {
+    private final LessonService lessonService;
 
-    /***************************************************************************************** */
-    // public Section getSectionById(Integer id) {
-    // String sql = "SELECT * FROM section WHERE id = " + id;
-    // List<Section> sections = jdbcTemplate.query(sql, new
-    // BeanPropertyRowMapper(Section.class));
-    // if (sections.isEmpty()) {
-    // return null;
-    // }
-    // return sections.get(0);
-    // }
+    private final SectionRepository sectionRepository;
+    private final LessonRepository lessonRepository;
 
-    /***************************************************************************************** */
+    /************************************************************************************** */
 
-    public List<Section> findByCourseId(Integer id) {
-        String sql = "SELECT * FROM section WHERE course_id = " + id;
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(Section.class));
+    public SectionDto mapSectionToDto(Section section) {
+        if (section == null)
+            return null;
+            SectionDto sectionDto = new SectionDto();
+            sectionDto.setId(section.getId());
+            sectionDto.setTitle(section.getTitle());
+            sectionDto.setDescription(section.getDescription());
+            sectionDto.setDuration(section.getDuration());
+
+            List<Lesson> sectionLessons = lessonRepository.findBySectionId(section.getId());
+            sectionDto.setNumberOfSubComments(sectionLessons.size());
+            List<LessonDto> sectionLessonDtos = new ArrayList<>();
+            for (Lesson lesson : sectionLessons) {
+                sectionLessonDtos.add(lessonService.mapLessonToDto(lesson));
+                sectionDto.setLessons(sectionLessonDtos);
+            }
+     
+        
+    return sectionDto;
+
+}
+
+    public List<Section> getSectionsByCourseId(Integer courseID) {
+        return sectionRepository.findByCourseId(courseID);
     }
 
-    /***************************************************************************************** */
-    // @Transactional
-
-    // public void deleteById(Integer id) {
-    // String sql = "DELETE FROM section WHERE id = " + id;
-    // jdbcTemplate.update(sql);
-    // }
-
-    /***************************************************************************************** */
-
-    // @Transactional
-    // public void saveSection(Section section) {
-    // entityManager.persist(section);
-    // }
 
 }

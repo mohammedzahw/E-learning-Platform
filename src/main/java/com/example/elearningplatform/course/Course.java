@@ -6,95 +6,109 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.elearningplatform.course.category.Category;
-import com.example.elearningplatform.course.review.Review;
-import com.example.elearningplatform.course.section.Section;
 import com.example.elearningplatform.course.tag.Tag;
 import com.example.elearningplatform.user.User;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.ToString;
 
 @Entity
 @Data
-@Table(name = "course")
+@Table(name = "course", indexes = {
+    @Index(name = "course_title_index", columnList = "title", unique = false),
+})
 public class Course {
+
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        @Column(name = "id")
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         private Integer id;
 
-        @Column(name = "title")
         private String title;
+        private String whatYouWillLearn;
+        private String prerequisite;
 
-        @Column(name = "description")
         private String description;
 
-        @Column(name = "language")
         private String language;
 
-        @Column(name = "level")
         private String level;
+        
+        private Boolean isPreviewd;
 
-        @Column(name = "price")
         private Double price;
 
-        @Column(name = "duration")
         private BigDecimal duration;
 
-        @Column(name = "imageUrl")
-        private String imageUrl;
+        private byte[] image;
 
-        @Column(name = "is_published")
         private boolean isPublished;
 
-        @Column(name = "creation_date")
         private LocalDate creationDate;
 
-        @Column(name = "last_update_date")
         private LocalDate lastUpdateDate;
 
-        @Column(name = "average_rating")
-        private Double averageRating;
+        private Double totalRatings = 0.0;
 
-        @Column(name = "number_of_ratings")
-        private Integer numberOfRatings;
+        private Integer numberOfRatings = 0;
 
-        @Column(name = "number_of_enrollments")
-        private Integer numberOfEnrollments;
+        private Integer numberOfEnrollments = 0;
 
-        @OneToMany(mappedBy = "course")
-        @ToString.Exclude
-        private List<Section> sections;
+        public Course() {
+          this.totalRatings = 0.0;
+          this.numberOfRatings = 1;
+          this.numberOfEnrollments = 0;
+          this.creationDate = LocalDate.now();
+          this.lastUpdateDate = LocalDate.now();
+        }
 
-        @OneToMany
-        @ToString.Exclude
-        private List<Review> reviews;
 
-        @ManyToMany
+        @ManyToMany(fetch = FetchType.EAGER)
         @ToString.Exclude
         @JoinTable(name = "course_tag", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "tag_id", unique = false))
         private List<Tag> tags = new ArrayList<>();
 
-        @ManyToMany
+        @ManyToMany(fetch = FetchType.EAGER)
         @ToString.Exclude
         @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "user_id", unique = false))
-        private List<User> instructors = new ArrayList<>();;
+        private List<User> instructors = new ArrayList<>();
 
-        @ManyToMany
+        @ManyToMany(fetch = FetchType.EAGER)
         @ToString.Exclude
-        @JoinTable(name = "course_category", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "category_id", unique = false))
-        private List<Category> categories = new ArrayList<>();;
+        @JoinTable(joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "category_id", unique = false))
+        private List<Category> categories = new ArrayList<>();
 
-        // @ManyToMany(mappedBy = "courses")
-        // private List<Cart> carts = new ArrayList<>();
+        public void addCategory(Category category) {
+          this.categories.add(category);
+        }
+
+        public void addInstructor(User user) {
+          this.instructors.add(user);
+        }
+
+        public void addTag(Tag tag) {
+          this.tags.add(tag);
+        }
+
+        public void incrementNumberOfEnrollments() {
+          this.numberOfEnrollments++;
+        }
+
+        public void incrementNumberOfRatings() {
+          this.numberOfRatings++;
+        }
+
+        public void addRating(Double rating) {
+          this.totalRatings += rating;
+        }
+
 }
