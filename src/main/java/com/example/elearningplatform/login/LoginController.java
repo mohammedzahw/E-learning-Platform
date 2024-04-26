@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.sql.rowset.serial.SerialException;
-
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -36,13 +35,12 @@ public class LoginController implements ErrorController {
     private final LoginService loginService;
 
     /*****************************************************************************************************************/
-    @GetMapping
-    public ModelAndView login() {
-        return new ModelAndView("login");
-    }
+    // @GetMapping
+    // public ModelAndView login() {
+    //     return new ModelAndView("login");
+    // }
 
     /***************************************************************************************************************/
-
     @PostMapping("/custom")
     public Response loginCustom(@RequestBody @Valid LoginRequest loginRequest, BindingResult result,
             HttpServletRequest request)

@@ -4,6 +4,7 @@ import java.sql.SQLException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cart")
+
 public class CartController {
     private final CartService cartService;
 
@@ -21,6 +23,13 @@ public class CartController {
     public Response getCart() throws SQLException {
         // return new Response(HttpStatus.OK, "Success", cartService.getCart(headers.get("authorization")));
         return new Response(HttpStatus.OK, "Success", cartService.getCart());
+    }
+
+    @GetMapping("/add-course/{courseId}")
+    public Response addCourse(@PathVariable("courseId") Integer courseId) throws SQLException {
+        // return new Response(HttpStatus.OK, "Success",
+        // cartService.getCart(headers.get("authorization")));
+        return new Response(HttpStatus.OK, "Success", cartService.addCourse(courseId));
     }
 
 }

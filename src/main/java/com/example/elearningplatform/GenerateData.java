@@ -123,8 +123,8 @@ public class GenerateData {
             User user = new User();
             user.setEmail("user" + i + "@example.com");
             user.setFirstName("user" + i);
-            user.setLastName("mohaed" + i);
-            user.setPassword(passwordEncoder.encode("password"));
+            user.setLastName("mohamed" + i);
+            user.setPassword(passwordEncoder.encode("password@M.reda.49"));
             user.setRoles(List.of(Role.ROLE_USER));
             user.setEnabled(true);
             user.setLastLogin(java.time.LocalDateTime.now());
@@ -145,18 +145,7 @@ public class GenerateData {
             courseRepository.save(course);
         }
 
-        for (int i = 1; i <= 5; i++) {
-            User user = new User();
-            user.setEmail("user" + i + "@example.com");
-            user.setFirstName("user" + i);
-            user.setLastName("mohaed" + i);
-            user.setPassword("password" + i);
-            user.setRoles(List.of(Role.ROLE_USER));
-            user.setEnabled(true);
-            user.setLastLogin(java.time.LocalDateTime.now());
-            user.setRegistrationDate(java.time.LocalDateTime.now());
-            userRepository.save(user);
-        }
+        
 
     }
 

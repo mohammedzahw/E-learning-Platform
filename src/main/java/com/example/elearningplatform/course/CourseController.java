@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.elearningplatform.response.Response;
-import com.example.elearningplatform.user.UserDto;
 import com.example.elearningplatform.user.UserService;
 
 import jakarta.transaction.Transactional;
@@ -32,13 +31,16 @@ public class CourseController {
     public Response searchCourse(@PathVariable("searchKey") String searchKey,
             @PathVariable("pageNumber") Integer pageNumber) throws SQLException {
 
-        List<UserDto> instructors = userService.findBySearchKey(searchKey, pageNumber);
-        if (instructors.isEmpty()) {
-            List<SearchCourseDto> courses = courseService.findByTitle(searchKey, pageNumber);
-            return new Response(HttpStatus.OK, "Success", courses);
-        }
+        // List<UserDto> instructors = userService.findBySearchKey(searchKey,
+        // pageNumber);
+        // if (instructors.isEmpty()) {
+        // List<SearchCourseDto> courses = courseService.findByTitle(searchKey,
+        // pageNumber);
+        // return new Response(HttpStatus.OK, "Success", courses);
+        // }
 
-        return new Response(HttpStatus.OK, "Success", instructors);
+        // return new Response(HttpStatus.OK, "Success", instructors);
+        return new Response(HttpStatus.OK, "Success", courseService.findBysearchkey(searchKey, pageNumber));
     }
 
     /*******************************************************************************************/

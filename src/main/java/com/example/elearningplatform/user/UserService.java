@@ -7,10 +7,12 @@ import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.Course;
+import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.signup.SignUpRequest;
 import com.example.elearningplatform.user.address.Address;
@@ -28,7 +30,14 @@ public class UserService {
     private final TokenUtil tokenUtil;
     private final PasswordEncoder passwordEncoder;
 
-
+    public Response getUser(Integer userId) {
+        try {
+            User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
+            return new Response(HttpStatus.OK, "Success", new UserDto(user));
+        } catch (Exception e) {
+            return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+        }
+    }
     /************************************************************************** */
     public List<UserDto> findBySearchKey(String searchKey, Integer pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, 8);

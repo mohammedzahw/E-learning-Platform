@@ -58,6 +58,24 @@ public class CourseService {
         }
 
         /****************************************************************************************/
+        public List<SearchCourseDto> findBysearchkey(String searchKey,Integer pageNumber) {
+                if(searchKey == null) {
+                        return new ArrayList<>();
+                }
+                
+
+                Pageable pageable = PageRequest.of(pageNumber, 8);
+
+                List<SearchCourseDto> courses = courseRepository.findBySearchKey(searchKey, pageable).stream()
+                                .map(course -> {
+                                        SearchCourseDto searchCourseDto = new SearchCourseDto(course);
+                                        return searchCourseDto;
+                                }).toList();
+                return courses;
+        
+                
+        }
+        /****************************************************************************************/
         public List<SearchCourseDto> findByTitle(String searchKey, Integer pageNumber) {
 
                 Pageable pageable = PageRequest.of(pageNumber, 8);

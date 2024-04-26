@@ -43,7 +43,10 @@ public class ReplyService {
 
     /************************************************************************************** */
 
-    public List<ReplyDto> getRepliesByCommentId(Integer commentId) {
+    public Response getRepliesByCommentId(Integer commentId) {
+        try {
+            Comment comment = commentRepository.findById(commentId)
+                    .orElseThrow(() -> new Exception("Comment not found"));
         List<Reply> replyes = replyRepository.findByCommentId(commentId);
 
         List<Reply> votedComments = replyRepository.findByLikes(tokenUtil.getUserId());
@@ -53,9 +56,12 @@ public class ReplyService {
             Boolean isCreatedByUser = reply.getUser().getId().equals(tokenUtil.getUserId());
             return new ReplyDto(reply, isVotedByUser, isCreatedByUser);
         }).toList();
-        return replyesDto;
+        return new Response(HttpStatus.OK, "Replies fetched successfully", replyesDto);
+    } catch (Exception e) {
+        return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
 
     }
+}
 
     /*************************************************************************************************** */
     public Response deleteReply(Integer replyId) {
@@ -95,8 +101,8 @@ public class ReplyService {
     /*************************************************************************************************** */
     public Response likeReply(Integer replyId, Integer userId) {
         try {
-            Reply reply = replyRepository.findById(replyId).orElseThrow();
-            User user = userRepository.findById(userId).orElseThrow();
+            Reply reply = replyRepository.findById(replyId).orElseThrow(() -> new IllegalArgumentException("Reply not found"));
+            User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
             reply.addLike(user);
             replyRepository.save(reply);

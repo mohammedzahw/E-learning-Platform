@@ -2,7 +2,6 @@ package com.example.elearningplatform.user;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,11 +14,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.elearningplatform.response.Response;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
+
 public class UserController {
 
     private final UserService userService;
@@ -28,14 +29,18 @@ public class UserController {
 
     /**************************************************************************************************************/
 
+    @GetMapping("/get-user/{id}")
+
+    public Response getUser(@PathVariable("id") Integer id) throws SQLException {
+        return userService.getUser(id);
+
+    }
     @GetMapping("/get-all-users")
 
-    public ModelAndView getAllUsers() throws SQLException {
+    public Response getUsers() {
 
-        ModelAndView mv = new ModelAndView("showAllUsers");
-        List<User> users = userRepository.findAll();
-        mv.addObject("users", users);
-        return mv;
+        return new Response(HttpStatus.OK, "success",
+                userRepository.findAll().stream().map(user -> new UserDto(user)).toList());
 
     }
 
@@ -51,7 +56,7 @@ public class UserController {
     //     return new Response(HttpStatus.OK, "success", userService.getArchived());
     // }
     /**************************************************************************************************************/
-    @GetMapping("/user/display-image/{id}")
+    @GetMapping("/display-image/{id}")
     public ResponseEntity<byte[]> displayImage(@PathVariable("id") int id) throws IOException,
             SQLException {
         User user = userRepository.findById(id).orElse(null);
@@ -72,13 +77,14 @@ public class UserController {
     // }
 
     /**************************************************************************************************************/
+
     @GetMapping("/profile")
     public Response getProfile() {
 
         return new Response(HttpStatus.OK, "success", userService.getProfile());
     }
 
-
+    
     @GetMapping("/my-learning")
     public Response myLearning() {
         return new Response(HttpStatus.OK, "success", userService.getEnrolledCourses());

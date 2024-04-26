@@ -46,7 +46,7 @@ public class SignUpService {
 
         } catch (Exception e) {
 
-            return new Response(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            return new Response(HttpStatus.BAD_REQUEST, "Error while sending email", e.getMessage());
         }
 
     }
@@ -95,7 +95,7 @@ public class SignUpService {
             return new Response(HttpStatus.OK, "Email is not verfied ,please check your email to verfy it!", null);
         } catch (Exception e) {
 
-            return new Response(HttpStatus.BAD_REQUEST, "Error while sending email", null);
+            return new Response(HttpStatus.BAD_REQUEST, "Error while sending email", e.getMessage());
 
         }
     }

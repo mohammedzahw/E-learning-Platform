@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.elearningplatform.payment.copoun.Dto.CreateRequest;
+import com.example.elearningplatform.payment.copoun.Dto.CreateCopounRequest;
 import com.example.elearningplatform.response.Response;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class CopounController {
 
     /********************************************************************************* */
     @GetMapping("/create-copoun")
-    public Response createCopoun(CreateRequest request) {
+    public Response createCopoun(CreateCopounRequest request) {
         return copounService.createCopoun(request);
     }
 

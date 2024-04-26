@@ -3,7 +3,6 @@ package com.example.elearningplatform.course.section.lesson;
 import java.math.BigDecimal;
 
 import com.example.elearningplatform.course.section.Section;
-import com.example.elearningplatform.course.section.lesson.question.comment.Comment;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,7 +1,6 @@
 package com.example.elearningplatform.payment.copoun;
 
 import java.time.LocalDateTime;
-import java.util.Random;
 
 import com.example.elearningplatform.course.Course;
 

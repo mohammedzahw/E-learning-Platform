@@ -25,7 +25,7 @@ public class ReplyController {
     @GetMapping("/replyes/{commentId}")
     public Response getReplyes(@PathVariable("commentId") Integer commentId) {
 
-        return new Response(HttpStatus.OK, "Success", replyService.getRepliesByCommentId(commentId));
+        return replyService.getRepliesByCommentId(commentId);
 
     }
 

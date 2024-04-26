@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.Course;
 import com.example.elearningplatform.course.CourseRepository;
-import com.example.elearningplatform.payment.copoun.Dto.CreateRequest;
+import com.example.elearningplatform.payment.copoun.Dto.CreateCopounRequest;
 import com.example.elearningplatform.response.Response;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class CopounService {
     private final CourseRepository courseRepository;
 
     /******************************************************************************************** */
-    public Response createCopoun(CreateRequest request) {
+    public Response createCopoun(CreateCopounRequest request) {
         try {
 
             List<Copoun> copouns = copounRepository.findByCourseId(request.getCourseId());

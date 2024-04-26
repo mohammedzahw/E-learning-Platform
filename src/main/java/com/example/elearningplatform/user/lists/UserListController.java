@@ -46,7 +46,7 @@ public class UserListController {
     }
 
     /********************************************************************************* */
-    @GetMapping("/get-lists")
+    @GetMapping("/get-user-lists")
     public Response getLists() {
         List<UserListDto> lists = userListRepository.findByUserId(tokenUtil.getUserId()).stream().map(
                 list -> userListService.mapUserListToDto(list)).toList();

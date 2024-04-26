@@ -35,7 +35,7 @@ public class Reply extends Question {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER, cascade = jakarta.persistence.CascadeType.ALL)
+    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @ToString.Exclude
     @JoinTable(name = "reply_likes", joinColumns = @JoinColumn(name = "reply_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     List<User> likes = new ArrayList<>();
