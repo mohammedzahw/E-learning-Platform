@@ -17,10 +17,10 @@ import com.example.elearningplatform.email.EmailService;
 import com.example.elearningplatform.login.oAuth2.OAuth2UserDetails;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.Role;
-import com.example.elearningplatform.user.User;
-import com.example.elearningplatform.user.UserRepository;
-import com.example.elearningplatform.user.UserService;
+import com.example.elearningplatform.user.user.Role;
+import com.example.elearningplatform.user.user.User;
+import com.example.elearningplatform.user.user.UserRepository;
+import com.example.elearningplatform.user.user.UserService;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;

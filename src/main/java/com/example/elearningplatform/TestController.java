@@ -6,11 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.elearningplatform.course.CourseRepository;
+import com.example.elearningplatform.course.comment.CommentRepository;
+import com.example.elearningplatform.course.course.CourseRepository;
+import com.example.elearningplatform.course.lesson.LessonRepository;
 import com.example.elearningplatform.course.review.ReviewRepository;
 import com.example.elearningplatform.course.section.SectionRepository;
-import com.example.elearningplatform.course.section.lesson.LessonRepository;
-import com.example.elearningplatform.course.section.lesson.question.comment.CommentRepository;
 import com.example.elearningplatform.response.Response;
 
 import lombok.Data;

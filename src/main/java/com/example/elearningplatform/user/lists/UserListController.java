@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.UserRepository;
+import com.example.elearningplatform.user.lists.dto.CreateUserList;
+import com.example.elearningplatform.user.lists.dto.UpdateUserList;
+import com.example.elearningplatform.user.lists.dto.UserListDto;
+import com.example.elearningplatform.user.lists.dto.UserListDtoService;
+import com.example.elearningplatform.user.user.UserRepository;
 import com.example.elearningplatform.validator.Validator;
 
 import jakarta.validation.Valid;
@@ -26,6 +30,7 @@ public class UserListController {
     private final UserListService userListService;
     private final UserRepository userRepository;
     private final TokenUtil tokenUtil;
+    private final UserListDtoService userListDtoService;
 
     /********************************************************************************* */
 
@@ -49,7 +54,7 @@ public class UserListController {
     @GetMapping("/get-user-lists")
     public Response getLists() {
         List<UserListDto> lists = userListRepository.findByUserId(tokenUtil.getUserId()).stream().map(
-                list -> userListService.mapUserListToDto(list)).toList();
+                list -> userListDtoService.mapUserListToDto(list)).toList();
         return new Response(HttpStatus.OK, "success", lists);
     }
 

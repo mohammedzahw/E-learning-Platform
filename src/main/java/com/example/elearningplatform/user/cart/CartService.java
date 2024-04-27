@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.example.elearningplatform.course.Course;
-import com.example.elearningplatform.course.CourseRepository;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
+import com.example.elearningplatform.user.cart.dto.CartDto;
+import com.example.elearningplatform.user.cart.dto.CartDtoService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class CartService {
     // private final HttpServletRequest request;
     private final TokenUtil tokenUtil;
     private final CourseRepository courseRepository;
+    private final CartDtoService cartDtoService;
 
     /***************************************************************************** */
 
@@ -30,7 +33,7 @@ public class CartService {
 
         CartDto cartDto = cartRepository.findByUserId(
             tokenUtil.getUserId())
-            .map(cart -> new CartDto(cart)).orElse(null);
+            .map(cart -> cartDtoService.mapCartToDto(cart)).orElseThrow();
 
         return cartDto;
     }

@@ -2,7 +2,7 @@ package com.example.elearningplatform.course.section;
 
 import java.math.BigDecimal;
 
-import com.example.elearningplatform.course.Course;
+import com.example.elearningplatform.course.course.Course;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

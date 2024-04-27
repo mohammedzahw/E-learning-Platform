@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.example.elearningplatform.course.Course;
-import com.example.elearningplatform.course.CourseRepository;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.payment.copoun.Dto.CreateCopounRequest;
 import com.example.elearningplatform.response.Response;
 

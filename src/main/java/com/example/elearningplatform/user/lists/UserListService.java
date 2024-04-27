@@ -5,12 +5,13 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.example.elearningplatform.course.Course;
-import com.example.elearningplatform.course.CourseRepository;
-import com.example.elearningplatform.course.SearchCourseDto;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.course.CourseRepository;
+import com.example.elearningplatform.course.course.dto.CourseDtoService;
+import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.response.Response;
-import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.UserRepository;
+import com.example.elearningplatform.user.lists.dto.UpdateUserList;
+import com.example.elearningplatform.user.lists.dto.UserListDtoService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,21 +20,22 @@ import lombok.RequiredArgsConstructor;
 public class UserListService {
     private final UserListRepository userListRepository;
     private final CourseRepository courseRepository;
-
+    private final UserListDtoService userListDtoService;
+    private final CourseDtoService courseDtoService;
 
     /************************************************************************************************** */
 
-    public UserListDto mapUserListToDto(UserList UserList) {
+    // public UserListDto mapUserListToDto(UserList UserList) {
 
-        UserListDto UserListDto = new UserListDto();
-        UserListDto.setId(UserList.getId());
-        UserListDto.setName(UserList.getName());
-        UserListDto.setCourses(UserList.getCourses().stream().map(course -> {
-            return new SearchCourseDto(course);
-        }).toList());
-        return UserListDto;
+    // UserListDto UserListDto = new UserListDto();
+    // UserListDto.setId(UserList.getId());
+    // UserListDto.setName(UserList.getName());
+    // UserListDto.setCourses(UserList.getCourses().stream().map(course -> {
+    // return courseDtoService.mapCourseToSearchDto(course);
+    // }).toList());
+    // return UserListDto;
 
-    }
+    // }
 
     /************************************************************************************************** */
 
@@ -41,7 +43,8 @@ public class UserListService {
         try { // User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
             UserList list = userListRepository.findById(listId)
                     .orElseThrow(() -> new RuntimeException("List not found"));
-            List<SearchCourseDto> courses = list.getCourses().stream().map(course -> new SearchCourseDto(course))
+            List<SearchCourseDto> courses = list.getCourses().stream()
+                    .map(course -> courseDtoService.mapCourseToSearchDto(course))
                     .toList();
             return courses;
         } catch (Exception e) {
@@ -114,7 +117,7 @@ public class UserListService {
 
             list.removeCourse(course);
             userListRepository.save(list);
-            return new Response(HttpStatus.OK, "Success", mapUserListToDto(list));
+            return new Response(HttpStatus.OK, "Success", userListDtoService.mapUserListToDto(list));
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }

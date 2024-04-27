@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.User;
-import com.example.elearningplatform.user.UserRepository;
+import com.example.elearningplatform.user.user.User;
+import com.example.elearningplatform.user.user.UserRepository;
 import com.example.elearningplatform.validator.Validator;
 
 import jakarta.mail.MessagingException;
@@ -34,7 +34,7 @@ public class SignUpController {
 
     /******************************************************************************************************************/
 
-    @PostMapping(value = "/signup/post-signup", consumes = { "multipart/form-data" })
+    @PostMapping(value = "/signup", consumes = { "multipart/form-data" })
 
     public Response signUp(@Valid SignUpRequest signUpRequest, BindingResult result,
             HttpServletRequest request) throws MessagingException, IOException, SQLException {

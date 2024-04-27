@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import javax.sql.rowset.serial.SerialException;
+
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.validator.Validator;

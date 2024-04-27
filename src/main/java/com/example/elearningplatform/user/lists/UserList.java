@@ -3,8 +3,8 @@ package com.example.elearningplatform.user.lists;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.elearningplatform.course.Course;
-import com.example.elearningplatform.user.User;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.user.user.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

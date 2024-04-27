@@ -2,8 +2,8 @@ package com.example.elearningplatform.course.review;
 
 import java.time.LocalDate;
 
-import com.example.elearningplatform.course.Course;
-import com.example.elearningplatform.user.User;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.user.user.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

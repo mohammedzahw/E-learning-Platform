@@ -15,8 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.example.elearningplatform.user.User;
-import com.example.elearningplatform.user.UserRepository;
+import com.example.elearningplatform.user.user.User;
+import com.example.elearningplatform.user.user.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

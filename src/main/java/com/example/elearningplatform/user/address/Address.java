@@ -1,6 +1,6 @@
 package com.example.elearningplatform.user.address;
 
-import com.example.elearningplatform.user.User;
+import com.example.elearningplatform.user.user.User;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

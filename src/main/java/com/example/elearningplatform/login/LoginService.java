@@ -16,8 +16,8 @@ import com.example.elearningplatform.login.oAuth2.OAuth2UserGoogle;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.signup.SignUpService;
-import com.example.elearningplatform.user.User;
-import com.example.elearningplatform.user.UserRepository;
+import com.example.elearningplatform.user.user.User;
+import com.example.elearningplatform.user.user.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +33,10 @@ public class LoginService {
     /***************************************************************************************************************/
     public Response verifyLogin(LoginRequest loginRequest, HttpServletRequest request)
             throws SQLException, IOException {
-        User user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
-        if (user == null) {
-            return new Response(HttpStatus.NOT_FOUND, "User not found!", null);
-        }
+        
+        try{       
+         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("User not found!"));
+      
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             return new Response(HttpStatus.BAD_REQUEST, "Wrong Password!", null);
         }
@@ -51,6 +51,9 @@ public class LoginService {
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
         return new Response(HttpStatus.OK, "Success!", token);
+    } catch (Exception e) {
+        return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+    }
     }
 
     /****************************************************************************************************************/

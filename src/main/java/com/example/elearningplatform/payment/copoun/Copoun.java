@@ -2,7 +2,7 @@ package com.example.elearningplatform.payment.copoun;
 
 import java.time.LocalDateTime;
 
-import com.example.elearningplatform.course.Course;
+import com.example.elearningplatform.course.course.Course;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
