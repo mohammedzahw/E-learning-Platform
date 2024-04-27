@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,6 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final CourseRepository courseRepository;
     private final CourseDtoService courseDtoService;
-
     /************************************************************************************************************/
     public Response getUser(Integer userId) {
         try {
@@ -46,8 +46,8 @@ public class UserService {
             userDto.setLastName(user.getLastName());
             userDto.setAbout(user.getAbout());
             userDto.setImageUrl("https://via.placeholder.com/300x150");
-            userDto.setInstructoredCourses(
-                    user.getEnrolledCourses().stream().map(course -> courseDtoService.mapCourseToDto(course)).toList());
+           PageRequest pageable = PageRequest.of(0, 8);
+            userDto.setInstructoredCourses(courseRepository.findByInstructorId(user.getId(), pageable).stream().map(course -> courseDtoService.mapCourseToDto(course)).toList());
             return new Response(HttpStatus.OK, "Success", userDto);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
