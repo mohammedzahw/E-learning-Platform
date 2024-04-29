@@ -1,98 +1,120 @@
 package com.example.elearningplatform.user.user;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.course.CourseRepository;
-import com.example.elearningplatform.course.course.dto.CourseDto;
-import com.example.elearningplatform.course.course.dto.CourseDtoService;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.signup.SignUpRequest;
-import com.example.elearningplatform.user.address.Address;
-import com.example.elearningplatform.user.address.AddressDto;
-import com.example.elearningplatform.user.address.AddressRepository;
 import com.example.elearningplatform.user.user.dto.ProfileDto;
 import com.example.elearningplatform.user.user.dto.UserDto;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.Setter;
 
 @Service
-@RequiredArgsConstructor
-
+@Setter
+@Transactional
 public class UserService {
-    private final UserRepository userRepository;
-    private final AddressRepository addressRepository;
-    private final TokenUtil tokenUtil;
-    private final PasswordEncoder passwordEncoder;
-    private final CourseRepository courseRepository;
-    private final CourseDtoService courseDtoService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private TokenUtil tokenUtil;
+    @Autowired private CourseRepository courseRepository;
+
     /************************************************************************************************************/
     public Response getUser(Integer userId) {
         try {
+
             User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
-            UserDto userDto = new UserDto();
-            userDto.setId(user.getId());
-            userDto.setFirstName(user.getFirstName());
-            userDto.setLastName(user.getLastName());
-            userDto.setAbout(user.getAbout());
-            userDto.setImageUrl("https://via.placeholder.com/300x150");
-           PageRequest pageable = PageRequest.of(0, 8);
-            userDto.setInstructoredCourses(courseRepository.findByInstructorId(user.getId(), pageable).stream().map(course -> courseDtoService.mapCourseToDto(course)).toList());
+            UserDto userDto = new UserDto(user);
+
+            List<SearchCourseDto> courses = userRepository.findInstructedCourses(userId).stream()
+                    .map(course -> {
+                        userDto.setNumberOfEnrollments(
+                                userDto.getNumberOfEnrollments() + course.getNumberOfEnrollments());
+                        return new SearchCourseDto(
+                                course, courseRepository.findCourseInstructors(course.getId()),
+                                courseRepository.findCourseCategory(course.getId()),
+                                courseRepository.findCourseTags(course.getId()));
+                    })
+
+                    .toList();
+            userDto.setInstructoredCourses(
+                    courses);
+            userDto.setNumberOfCourses(courses.size());
+
             return new Response(HttpStatus.OK, "Success", userDto);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
-    // public List<UserDto> findBySearchKey(String searchKey, Integer pageNumber) {
-    // Pageable pageable = PageRequest.of(pageNumber, 8);
-    // return userRepository.findBySearchKey(searchKey, pageable).stream().map(user
-    // -> {
-    // UserDto instructor = new UserDto(user);
-    // return instructor;
-    // }).toList();
 
-    // }
 
     /************************************************************************************************************/
 
-    public User saveUser(SignUpRequest request) throws SQLException, IOException {
+    public Response deleteFromCart(Integer courseId) {
+        try {
+            if (userRepository.findCourseInCart(courseId, tokenUtil.getUserId()).isPresent() == false) {
+                return new Response(HttpStatus.BAD_REQUEST, "Course is not in cart", null);
+            }
 
-        User user = User.builder().email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
-                .age(request.getAge())
-                .about(request.getBio()).firstName(request.getFirstName()).lastName(request.getLastName())
-                .enabled(false)
-                .phoneNumber(request.getPhoneNumber()).registrationDate(LocalDateTime.now()).build();
-        if (request.getProfilePicture() != null)
-            user.setProfilePicture(request.getProfilePicture().getBytes());
-        userRepository.save(user);
-        user.setRoles(List.of(Role.ROLE_USER));
-        userRepository.save(user);
-        Address address = Address.builder().user(user).city(request.getCity()).country(request.getCountry())
-                .street(request.getStreet()).state(request.getState()).zipCode(request.getZipCode()).build();
-        addressRepository.save(address);
-        return user;
+            userRepository.removeFromCart(tokenUtil.getUserId(), courseId);
+            return new Response(HttpStatus.OK, "Success", null);
+        } catch (Exception e) {
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+        }
     }
+
+    /***************************************************************************** */
+
+    public Response getCart() {
+        try {
+
+            List<SearchCourseDto> courses = userRepository.findCartCourses(tokenUtil.getUserId()).stream()
+                    .map(course -> new SearchCourseDto(
+                            course, courseRepository.findCourseInstructors(course.getId()),
+                            courseRepository.findCourseCategory(course.getId()),
+                            courseRepository.findCourseTags(course.getId())))
+                    .toList();
+
+            return new Response(HttpStatus.OK, "Success", courses);
+
+        } catch (Exception e) {
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+        }
+    }
+
+    /***************************************************************************** */
+    @Transactional
+    public Response addToCart(Integer courseId) {
+        try {
+            if (userRepository.findCourseInCart(courseId, tokenUtil.getUserId()).isPresent()) {
+                return new Response(HttpStatus.BAD_REQUEST, "Course already in cart", null);
+            }
+
+            userRepository.addToCart(tokenUtil.getUserId(), courseId);
+            return new Response(HttpStatus.OK, "Course added to cart", null);
+
+        } catch (Exception e) {
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+        }
+    }
+
+    /***************************************************************************** */
 
     /***************************************************************************************************************/
     public Response addToWishlist(Integer courseId) {
 
         try {
-            Course course = courseRepository.findById(courseId).orElseThrow(() -> new Exception("Course not found"));
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
 
-            user.addTowhishlist(course);
-            userRepository.save(user);
+            if (userRepository.findCourseInWhishList(courseId, tokenUtil.getUserId()).isPresent()) {
+                return new Response(HttpStatus.BAD_REQUEST, "Course already in wishlist", null);
+            }
+
+            userRepository.addToWishlist(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course added to wishlist", null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
@@ -104,12 +126,12 @@ public class UserService {
     public Response deleteFromoWishlist(Integer courseId) {
 
         try {
-            Course course = courseRepository.findById(courseId).orElseThrow(() -> new Exception("Course not found"));
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
 
-            user.deleteFromoWishlist(course);
-            userRepository.save(user);
+            if (userRepository.findCourseInWhishList(courseId, tokenUtil.getUserId()).isPresent() == false) {
+                return new Response(HttpStatus.BAD_REQUEST, "Course is not in wishlist", null);
+            }
+
+            userRepository.removeFromWishlist(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course deleted from wishlist", null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
@@ -121,11 +143,12 @@ public class UserService {
 
     public Response addToArchived(Integer courseId) {
         try {
-            Course course = courseRepository.findById(courseId).orElseThrow(() -> new Exception("Course not found"));
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
-            user.addToArchived(course);
-            userRepository.save(user);
+
+            if (userRepository.findCourseInArchived(courseId, tokenUtil.getUserId()).isPresent()) {
+                return new Response(HttpStatus.BAD_REQUEST, "Course already in archived", null);
+            }
+
+            userRepository.addToArchivedCourses(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course added to archived", null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
@@ -138,12 +161,12 @@ public class UserService {
     public Response deleteFromArchived(Integer courseId) {
 
         try {
-            Course course = courseRepository.findById(courseId).orElseThrow(() -> new Exception("Course not found"));
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
 
-            user.deleteFromArchived(course);
-            userRepository.save(user);
+            if (userRepository.findCourseInArchived(courseId, tokenUtil.getUserId()).isPresent() == false) {
+                return new Response(HttpStatus.BAD_REQUEST, "Course is not in archived", null);
+            }
+
+            userRepository.removeFromArchivedCourses(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course deleted from archived", null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
@@ -156,19 +179,8 @@ public class UserService {
         try {
             User user = userRepository.findById(tokenUtil.getUserId())
                     .orElseThrow(() -> new Exception("User not found"));
-            ProfileDto profileDto = new ProfileDto();
-            profileDto.setId(user.getId());
-            profileDto.setEmail(user.getEmail());
-            profileDto.setFirstName(user.getFirstName());
-            profileDto.setImageUrl("https://via.placeholder.com/300x150");
-            profileDto.setLastName(user.getLastName());
-            profileDto.setPhoneNumber(user.getPhoneNumber());
-            profileDto.setEnabled(user.isEnabled());
-            profileDto.setRegistrationDate(user.getRegistrationDate());
-            profileDto.setBio(user.getAbout());
-            profileDto.setLastLogin(user.getLastLogin());
-            profileDto.setAge(user.getAge());
-            profileDto.setAddress(new AddressDto(user.getAddress()));
+            ProfileDto profileDto = new ProfileDto(user);
+
             return new Response(HttpStatus.OK, "Success", profileDto);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
@@ -176,41 +188,33 @@ public class UserService {
         }
     }
 
-    /********************************************************************************************************* */
-    public UserDto mapUserDto(User user) {
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setFirstName(user.getFirstName());
-        userDto.setLastName(user.getLastName());
-        userDto.setAbout(user.getAbout());
-        userDto.setImageUrl("https://via.placeholder.com/300x150");
-        userDto.setInstructoredCourses(
-                user.getEnrolledCourses().stream().map(course -> courseDtoService.mapCourseToDto(course)).toList());
-        return userDto;
-
-    }
-
-    /********************************************************************************************************* */
+    /*************************************************************************************************************** */
     public Response getEnrolledCourses() {
         try {
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
-            List<CourseDto> courses = user.getEnrolledCourses().stream()
-                    .map(course -> courseDtoService.mapCourseToDto(course))
+            List<SearchCourseDto> courses = userRepository.findEnrolledCourses(tokenUtil.getUserId()).stream()
+                    .map(course -> new SearchCourseDto(
+                            course, courseRepository.findCourseInstructors(course.getId()),
+                            courseRepository.findCourseCategory(course.getId()),
+                            courseRepository.findCourseTags(course.getId())))
                     .toList();
             return new Response(HttpStatus.OK, "Success", courses);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
         }
     }
+
+    /*************************************************************************************************************** */
 
     public Response getArchived() {
         try {
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
-            List<SearchCourseDto> courses = user.getArchivedCourses().stream()
-                    .map(course -> courseDtoService.mapCourseToSearchDto(course))
+
+            List<SearchCourseDto> courses = userRepository.findArchivedCourses(tokenUtil.getUserId()).stream()
+                    .map(course -> new SearchCourseDto(
+                            course, courseRepository.findCourseInstructors(course.getId()),
+                            courseRepository.findCourseCategory(course.getId()),
+                            courseRepository.findCourseTags(course.getId())))
                     .toList();
+
             return new Response(HttpStatus.OK, "Success", courses);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
@@ -218,12 +222,15 @@ public class UserService {
         }
     }
 
+    /*************************************************************************************************************** */
     public Response getWishlist() {
         try {
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
-            List<SearchCourseDto> courses = user.getWhishlist().stream()
-                    .map(course -> courseDtoService.mapCourseToSearchDto(course))
+
+            List<SearchCourseDto> courses = userRepository.findWhishListCourses(tokenUtil.getUserId()).stream()
+                    .map(course -> new SearchCourseDto(
+                            course, courseRepository.findCourseInstructors(course.getId()),
+                            courseRepository.findCourseCategory(course.getId()),
+                            courseRepository.findCourseTags(course.getId())))
                     .toList();
             return new Response(HttpStatus.OK, "Success", courses);
         } catch (Exception e) {

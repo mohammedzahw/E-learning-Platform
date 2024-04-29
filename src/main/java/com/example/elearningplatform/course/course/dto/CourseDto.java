@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.elearningplatform.course.category.Category;
-import com.example.elearningplatform.course.review.dto.ReviewDto;
+import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.section.dto.SectionDto;
-import com.example.elearningplatform.user.user.dto.InstructorDto;
-import com.example.elearningplatform.user.user.dto.UserDto;
+import com.example.elearningplatform.course.tag.Tag;
+import com.example.elearningplatform.user.user.User;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +17,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+
 public class CourseDto extends SearchCourseDto {
 
     private String description;
@@ -24,12 +25,9 @@ public class CourseDto extends SearchCourseDto {
     private LocalDate lastUpdateDate;
     private String whatYouWillLearn;
     private String prerequisite;
-    private Boolean isReviewd = false;
     private Boolean isSubscribed = false;
 
     private List<SectionDto> sections = new ArrayList<>();
-    private List<ReviewDto> reviews = new ArrayList<>();
- 
 
     public void addSection(SectionDto section) {
         if (section == null)
@@ -37,25 +35,20 @@ public class CourseDto extends SearchCourseDto {
         this.sections.add(section);
     }
 
-    public void addReview(ReviewDto review) {
-        if (review == null)
+
+    public CourseDto(
+            Course course, Boolean isSubscribed,
+            List<User> instructorList, List<Category> categories, List<Tag> tags) {
+        super(course, instructorList, categories, tags);
+        if (course == null)
             return;
-        this.reviews.add(review);
+        this.description = course.getDescription();
+        this.creationDate = course.getCreationDate();
+        this.lastUpdateDate = course.getLastUpdateDate();
+        this.whatYouWillLearn = course.getWhatYouWillLearn();
+        this.prerequisite = course.getPrerequisite();
+        this.isSubscribed = isSubscribed;
+
     }
-
-    
-
-    public void addReviewinFront(ReviewDto review) {
-        if (review == null)
-            return;
-        this.reviews.addFirst(review);
-    }
-
-    // public CourseDto(Course course, Boolean isSubscribed) {
-    // super(course);
-
-    // this.isSubscribed = isSubscribed;
-
-    // }
 
 }

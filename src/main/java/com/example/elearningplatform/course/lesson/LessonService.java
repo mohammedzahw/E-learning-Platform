@@ -2,38 +2,48 @@ package com.example.elearningplatform.course.lesson;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.example.elearningplatform.course.comment.CommentRepository;
 import com.example.elearningplatform.course.comment.CommentService;
-import com.example.elearningplatform.course.lesson.dto.LessonDto;
-import com.example.elearningplatform.course.lesson.dto.LessonDtoService;
-import com.example.elearningplatform.security.TokenUtil;
+import com.example.elearningplatform.course.comment.dto.CommentDto;
+import com.example.elearningplatform.course.course.CourseService;
+import com.example.elearningplatform.course.lesson.dto.LessonVideoDto;
+import com.example.elearningplatform.response.Response;
 
+import jakarta.transaction.Transactional;
 import lombok.Data;
 
 @Service
 @Data
+@Transactional
 public class LessonService {
-    private final CommentService commentService;
-    private final TokenUtil tokenUtil;
-    private final LessonRepository lessonRepository;
-    private final CommentRepository commentRepository;
-    private final LessonDtoService lessonDtoService;
+    @Autowired
+    private LessonRepository lessonRepository;
+    @Autowired
+    private CourseService courseService;
+    @Autowired
+    private CommentService commentService;
 
     /*****************************************************************************************************/
+    public Response getLesson(Integer lessonId, Integer pageNumber) {
+        try {
+            commentService.checkCommentAuth(lessonId);
+            Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(() -> new Exception("Lesson not found"));
+            List<CommentDto> comments = commentService.getCommentsByLessonId(lessonId, pageNumber);
+            LessonVideoDto lessonVideo = new LessonVideoDto();
+            lessonVideo.setContent(lesson.getContent());
+            lessonVideo.setComments(comments);
 
-    /*****************************************************************************************************/
-    public List<LessonDto> getLessonsBySectionId(Integer sectionId) {
-        return lessonRepository.findBySectionId(sectionId).stream()
-                .map(lesson -> lessonDtoService.mapLessonToDto(lesson)).toList();
+            return new Response(HttpStatus.OK, "Success", lessonVideo);
+        } catch (Exception e) {
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+        }
+
     }
 
-    /*****************************************************************************************************/
-    public LessonDto getLessonById(Integer id) {
 
-        return lessonDtoService.mapLessonToDto(lessonRepository.findById(id).orElse(null));
-    }
     /*****************************************************************************************************/
 
 }

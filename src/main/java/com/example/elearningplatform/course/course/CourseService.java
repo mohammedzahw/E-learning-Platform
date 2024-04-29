@@ -3,15 +3,19 @@ package com.example.elearningplatform.course.course;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.course.dto.CourseDto;
-import com.example.elearningplatform.course.course.dto.CourseDtoService;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
+import com.example.elearningplatform.course.lesson.dto.LessonDto;
+import com.example.elearningplatform.course.section.SectionRepository;
+import com.example.elearningplatform.course.section.dto.SectionDto;
+import com.example.elearningplatform.response.Response;
+import com.example.elearningplatform.security.TokenUtil;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,21 +27,39 @@ public class CourseService {
         @Autowired 
         private CourseRepository courseRepository;
 
-        @Autowired 
-        private CourseDtoService courseDtoService;
+        @Autowired
+        private TokenUtil tokenUtil;
+        @Autowired
+        private SectionRepository sectionRepository;
 
         /***************************************************************************************** */
-        public List<CourseDto> getAllCourses() {
+        public Response getCoursesByCategoryId(Integer categoryId, Integer pageNumber) {
+                try {
+                        List<SearchCourseDto> courses = courseRepository
+                                        .findByCategoryId(categoryId, PageRequest.of(pageNumber, 8))
+                                        .stream()
+                                        .map(course -> new SearchCourseDto(
+                                                        course, courseRepository.findCourseInstructors(course.getId()),
+                                                        courseRepository.findCourseCategory(course.getId()),
+                                                        courseRepository.findCourseTags(course.getId())))
+                                        .toList();
+                        return new Response(HttpStatus.OK, "Courses fetched successfully", courses);
+                } catch (Exception e) {
+                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+                }
+        }
 
-                List<CourseDto> courseDtos = courseRepository.findAll().stream()
-                                .map(course -> {
-                                        CourseDto courseDto = courseDtoService.mapCourseToDto(course);
-                                        return courseDto;
-                                }).toList();
-                // courses.forEach(course -> {
-                // courseDtos.add(courseDtoService.mapCourseToDto(course));
-                // });
-                return courseDtos;
+        /***************************************************************************************** */
+        public List<SearchCourseDto> getAllCourses() {
+
+                List<SearchCourseDto> courses = courseRepository.findAll().stream()
+                                .map(course -> new SearchCourseDto(
+                                                course, courseRepository.findCourseInstructors(course.getId()),
+                                                courseRepository.findCourseCategory(course.getId()),
+                                                courseRepository.findCourseTags(course.getId())))
+                                .toList();
+                ;
+                return courses;
         }
 
         /****************************************************************************************/
@@ -46,7 +68,11 @@ public class CourseService {
                 Pageable pageable = PageRequest.of(pageNumber, 8);
 
                 List<SearchCourseDto> courses = courseRepository.findByCategoryId(categoryId, pageable).stream()
-                                .map(course -> courseDtoService.mapCourseToSearchDto(course)).toList();
+                                .map(course -> new SearchCourseDto(
+                                                course, courseRepository.findCourseInstructors(course.getId()),
+                                                courseRepository.findCourseCategory(course.getId()),
+                                                courseRepository.findCourseTags(course.getId())))
+                                .toList();
                 return courses;
         }
 
@@ -59,7 +85,11 @@ public class CourseService {
                 Pageable pageable = PageRequest.of(pageNumber, 8);
 
                 List<SearchCourseDto> courses = courseRepository.findBySearchKey(searchKey, pageable).stream()
-                                .map(course -> courseDtoService.mapCourseToSearchDto(course)).toList();
+                                .map(course -> new SearchCourseDto(
+                                                course, courseRepository.findCourseInstructors(course.getId()),
+                                                courseRepository.findCourseCategory(course.getId()),
+                                                courseRepository.findCourseTags(course.getId())))
+                                .toList();
 
                 return courses;
 
@@ -71,7 +101,12 @@ public class CourseService {
                 Pageable pageable = PageRequest.of(pageNumber, 8);
 
                 List<SearchCourseDto> courses = courseRepository.findByTitle(title, pageable).stream()
-                                .map(course -> courseDtoService.mapCourseToSearchDto(course)).toList();
+                                .map(course -> new SearchCourseDto(
+                                                course, courseRepository.findCourseInstructors(course.getId()),
+                                                courseRepository.findCourseCategory(course.getId()),
+                                                courseRepository.findCourseTags(course.getId())))
+                                .toList();
+
                 return courses;
         }
 
@@ -81,63 +116,65 @@ public class CourseService {
                 Pageable pageable = PageRequest.of(pageNumber, 8);
 
                 List<SearchCourseDto> courses = courseRepository.findByInstructorId(instructorId, pageable).stream()
-                                .map(course -> courseDtoService.mapCourseToSearchDto(course)).toList();
+                                .map(course -> new SearchCourseDto(
+                                                course, courseRepository.findCourseInstructors(course.getId()),
+                                                courseRepository.findCourseCategory(course.getId()),
+                                                courseRepository.findCourseTags(course.getId())))
+                                .toList();
                 return courses;
         }
 
         /**************************************************************************************** */
-        public CourseDto getCourse(Integer courseId) {
-                Course course = courseRepository.findById(courseId).orElse(null);
+        public Response getCourse(Integer courseId) {
+                try {
+                        Course course = courseRepository.findById(courseId)
+                                        .orElseThrow(() -> new RuntimeException("Course not found"));
+                        CourseDto courseDto = new CourseDto(
+                                        course, ckeckCourseSubscribe(courseId),
+                                        courseRepository.findCourseInstructors(courseId),
+                                        courseRepository.findCourseCategory(courseId),
+                                        courseRepository.findCourseTags(courseId));
+                        List<SectionDto> sections = courseRepository.findCourseSections(courseId).stream()
+                                        .map(section -> new SectionDto(section)).toList();
+                        sections.forEach(section -> {
+                                section.setLessons(
+                                                sectionRepository.findSectionLessons(section.getId())
+                                                                .stream()
+                                                                .map(lesson -> new LessonDto(lesson))
+                                                                .toList());
+                        });
+                        courseDto.setSections(sections);
 
-                if (course == null)
-                        return null;
-                CourseDto courseDto = courseDtoService.mapCourseToDto(course);
+                        return new Response(HttpStatus.OK, "Course fetched successfully", courseDto);
 
-                return courseDto;
-
+                } catch (Exception e) {
+                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+                }
         }
 
         /**************************************************************************************** */
 
+        public Boolean ckeckCourseSubscribe(Integer courseId) {
+                Integer userId = tokenUtil.getUserId();
+                if (userId == null)
+                        return false;
+                return courseRepository.findEnrolledCourseByUserIdAndCourseId(userId, courseId).isPresent();
+        }
+
         /**************************************************************************************** */
-        // public CourseDto mapCourseToDto(Course course) {
-        // CourseDto courseDto = new CourseDto(course,
-        // ckeckCourseSubscribe(course.getId()));
-        // courseDto.setDescription(course.getDescription());
-        // courseDto.setCreationDate(course.getCreationDate());
-        // courseDto.setLastUpdateDate(course.getLastUpdateDate());
-        // courseDto.setWhatYouWillLearn(course.getWhatYouWillLearn());
-        // courseDto.setPrerequisite(course.getPrerequisite());
-        // List<SectionDto> sectionDtos =
-        // sectionRepository.findByCourseId(course.getId()).stream()
-        // .map(section -> sectionService.mapSectionToDto(section)).toList();
-
-        // courseDto.setSections(sectionDtos);
-
-        // List<ReviewDto> courseReviewDtos =
-        // reviewRepository.findByCourseId(course.getId()).stream().map(
-        // review -> {
-        // ReviewDto reviewDto = new ReviewDto(review);
-        // if (review.getUser().getId().equals(tokenUtil.getUserId())) {
-        // courseDto.setIsReviewd(true);
-        // courseDto.addReviewinFront(reviewDto);
-        // }
-        // return reviewDto;
-        // })
-        // .toList();
-        // courseDto.setReviews(courseReviewDtos);
-
-        // course.getInstructors().forEach(instructor -> {
-        // UserDto user = userService.mapUerDto(instructor);
-        // courseDto.addInstructor(user);
-        // });
-
-        // course.getCategories().forEach(category -> {
-        // courseDto.getCategories().add(category);
-        // });
-        // return courseDto;
-
-        // }
-        /****************************************************************************************/
-
+        public Response getCoursesByTagId(Integer tagId, Integer pageNumber) {
+                try {
+                        List<SearchCourseDto> courses = courseRepository
+                                        .findByTagId(tagId, PageRequest.of(pageNumber, 8))
+                                        .stream()
+                                        .map(course -> new SearchCourseDto(
+                                                        course, courseRepository.findCourseInstructors(course.getId()),
+                                                        courseRepository.findCourseCategory(course.getId()),
+                                                        courseRepository.findCourseTags(course.getId())))
+                                        .toList();
+                        return new Response(HttpStatus.OK, "Courses fetched successfully", courses);
+                } catch (Exception e) {
+                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+                }
+        }
 }

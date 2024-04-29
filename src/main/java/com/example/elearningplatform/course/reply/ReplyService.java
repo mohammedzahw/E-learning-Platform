@@ -2,14 +2,19 @@ package com.example.elearningplatform.course.reply;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.comment.Comment;
 import com.example.elearningplatform.course.comment.CommentRepository;
+import com.example.elearningplatform.course.comment.CommentService;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.course.CourseService;
+import com.example.elearningplatform.course.lesson.Lesson;
 import com.example.elearningplatform.course.reply.dto.CreateReplyRequest;
 import com.example.elearningplatform.course.reply.dto.ReplyDto;
-import com.example.elearningplatform.course.reply.dto.ReplyDtoService;
 import com.example.elearningplatform.course.reply.dto.UpdateReplyRequest;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
@@ -17,35 +22,38 @@ import com.example.elearningplatform.user.user.User;
 import com.example.elearningplatform.user.user.UserRepository;
 
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
-
+@Transactional
 public class ReplyService {
-    private final ReplyRepository replyRepository;
-    private final TokenUtil tokenUtil;
-    private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
-    private final ReplyDtoService replyDtoService;
+    @Autowired
+    private ReplyRepository replyRepository;
+    @Autowired
+    private TokenUtil tokenUtil;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private CourseService courseService;
 
     /************************************************************************************** */
-    @Transactional
     public Response createReply(CreateReplyRequest createReply) {
 
         try {
+            Lesson lesson = commentRepository.findLesson(createReply.getCommentId()).orElseThrow();
+            commentService.checkCommentAuth(lesson.getId());
             User user = userRepository.findById(tokenUtil.getUserId()).orElseThrow();
             Comment comment = commentRepository.findById(createReply.getCommentId()).orElseThrow();
             comment.incrementNumberOfReplies();
             commentRepository.save(comment);
             Reply reply = new Reply(createReply, comment, user);
-            // reply.setComment(comment);
-            // reply.setContent(createReply.getContent());
-            // reply.setCreationDate(LocalDateTime.now());
 
             replyRepository.save(reply);
             return new Response(HttpStatus.OK, "Reply created successfully",
-                    replyDtoService.mapReplyTodDto(reply, false, true));
+                    new ReplyDto(reply, false, true));
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
@@ -53,19 +61,20 @@ public class ReplyService {
 
     /************************************************************************************** */
 
-    public Response getRepliesByCommentId(Integer commentId) {
+    public Response getRepliesByCommentId(Integer commentId, Integer pageNumber) {
         try {
-            Comment comment = commentRepository.findById(commentId)
-                    .orElseThrow(() -> new Exception("Comment not found"));
-            List<Reply> replyes = replyRepository.findByCommentId(commentId);
+            
+            Lesson lesson = commentRepository.findLesson(commentId).orElseThrow();
+            commentService.checkCommentAuth(lesson.getId());
 
-            List<Reply> votedComments = replyRepository.findByLikes(tokenUtil.getUserId());
+            List<Reply> replyes = replyRepository.findByCommentId(commentId, PageRequest.of(pageNumber, 8));
+            List<Reply> likedReplyes = replyRepository.findLikedRepliesByUserIdAndCommentId(tokenUtil.getUserId(),
+                    commentId);
 
-            List<ReplyDto> replyesDto = replyes.stream().map(reply -> {
-                Boolean isVotedByUser = votedComments.contains(reply);
-                Boolean isCreatedByUser = reply.getUser().getId().equals(tokenUtil.getUserId());
-                return replyDtoService.mapReplyTodDto(reply, isCreatedByUser, isVotedByUser);
-            }).toList();
+            List<ReplyDto> replyesDto = replyes.stream().map(reply -> new ReplyDto(
+                    reply, likedReplyes.contains(reply), reply.getUser().getId().equals(tokenUtil.getUserId())))
+                    .toList();
+
             return new Response(HttpStatus.OK, "Replies fetched successfully", replyesDto);
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
@@ -76,13 +85,13 @@ public class ReplyService {
     /*************************************************************************************************** */
     public Response deleteReply(Integer replyId) {
         try {
+
             Reply reply = replyRepository.findById(replyId).orElseThrow();
-            Comment comment = commentRepository.findById(reply.getComment().getId()).orElseThrow();
             if (!reply.getUser().getId().equals(tokenUtil.getUserId())) {
                 return new Response(HttpStatus.UNAUTHORIZED, "Unauthorized",
-                        "You are not allowed to delete this reply");
+                        null);
             }
-
+            Comment comment = replyRepository.findComment(replyId).orElseThrow();
             comment.decrementNumberOfReplies();
             commentRepository.save(comment);
             replyRepository.delete(reply);
@@ -103,21 +112,21 @@ public class ReplyService {
             reply.setContent(request.getContent());
             replyRepository.save(reply);
             return new Response(HttpStatus.OK, "Reply updated successfully",
-                    replyDtoService.mapReplyTodDto(reply, false, false));
+                    new ReplyDto(reply, false, true));
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }
 
     /*************************************************************************************************** */
-    public Response likeReply(Integer replyId, Integer userId) {
+    public Response likeReply(Integer replyId) {
         try {
+            checkReplyAuth(replyId);
+
+            replyRepository.likeReply(tokenUtil.getUserId(), replyId);
             Reply reply = replyRepository.findById(replyId)
                     .orElseThrow(() -> new IllegalArgumentException("Reply not found"));
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-            reply.addLike(user);
+            reply.incrementNumberOfLikes();
             replyRepository.save(reply);
             return new Response(HttpStatus.OK, "Reply liked successfully", null);
         } catch (Exception e) {
@@ -128,14 +137,14 @@ public class ReplyService {
 
     /*************************************************************************************************** */
 
-    public Response removeLikeReply(Integer replyId, Integer userId) {
+    public Response removeLikeReply(Integer replyId) {
         try {
+
+            replyRepository.removeLikeFromReply(tokenUtil.getUserId(), replyId);
             Reply reply = replyRepository.findById(replyId)
                     .orElseThrow(() -> new IllegalArgumentException("Reply not found"));
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            reply.decrementNumberOfLikes();
 
-            reply.removeLike(user);
             replyRepository.save(reply);
             return new Response(HttpStatus.OK, "Reply unliked successfully", null);
         } catch (Exception e) {
@@ -143,4 +152,10 @@ public class ReplyService {
         }
     }
 
+    public void checkReplyAuth(Integer replyId) {
+        Course course = replyRepository.findCourseByReplyId(replyId).orElseThrow();
+        if (courseService.ckeckCourseSubscribe(course.getId()) == false)
+            throw new RuntimeException("Unauthorized");
+    }
 }
+

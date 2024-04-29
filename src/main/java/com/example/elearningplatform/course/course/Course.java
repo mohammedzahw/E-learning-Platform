@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.elearningplatform.course.category.Category;
+import com.example.elearningplatform.course.review.Review;
+import com.example.elearningplatform.course.section.Section;
 import com.example.elearningplatform.course.tag.Tag;
 import com.example.elearningplatform.user.user.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -18,6 +21,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.ToString;
@@ -72,34 +76,31 @@ public class Course {
           this.lastUpdateDate = LocalDate.now();
         }
 
+        @OneToMany(fetch = FetchType.LAZY,mappedBy = "course",cascade = CascadeType.REMOVE)
+        @ToString.Exclude
+        private List<Section> sections = new ArrayList<>();
+        
+        @OneToMany(fetch = FetchType.LAZY,mappedBy = "course",cascade = CascadeType.REMOVE)
+        @ToString.Exclude
+        private List<Review> reviews = new ArrayList<>();
 
-        @ManyToMany(fetch = FetchType.EAGER)
+        @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
         @ToString.Exclude
         @JoinTable(name = "course_tag", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "tag_id", unique = false))
         private List<Tag> tags = new ArrayList<>();
 
-        @ManyToMany(fetch = FetchType.EAGER)
+        @ManyToMany(fetch = FetchType.LAZY, mappedBy = "instructoredCourses",cascade = CascadeType.REMOVE)
         @ToString.Exclude
-        @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "user_id", unique = false))
         private List<User> instructors = new ArrayList<>();
 
-        @ManyToMany(fetch = FetchType.EAGER)
+        @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
         @ToString.Exclude
         @JoinTable(joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "category_id", unique = false))
         private List<Category> categories = new ArrayList<>();
 
-        public void addCategory(Category category) {
-          this.categories.add(category);
-        }
+      
 
-        public void addInstructor(User user) {
-          this.instructors.add(user);
-        }
-
-        public void addTag(Tag tag) {
-          this.tags.add(tag);
-        }
-
+       
         public void incrementNumberOfEnrollments() {
           this.numberOfEnrollments++;
         }

@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.user.address.Address;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -64,9 +65,10 @@ public class User implements UserDetails {
     private Integer age;
 
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private Address address;
+
 
     @ToString.Exclude
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
@@ -75,55 +77,41 @@ public class User implements UserDetails {
     @Column(name = "role")
     private List<Role> roles;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
     @JoinTable(name = "user_enrolled_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     @Builder.Default
     private List<Course> enrolledCourses = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
     @JoinTable(name = "user_archived_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     @Builder.Default
     private List<Course> archivedCourses = new ArrayList<>();
-    @ManyToMany(fetch = FetchType.EAGER)
+
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
     @JoinTable(name = "user_whishlist_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     @Builder.Default
     private List<Course> whishlist = new ArrayList<>();
 
-    public void addToArchived(Course course) {
-        if (course == null) {
-            return;
-        }
-        archivedCourses.add(course);
-    }
 
-    public void deleteFromArchived(Course course) {
-        if (course == null || archivedCourses.isEmpty() ) {
-            return;
-        }
-        archivedCourses.remove(course);
-    }
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @JoinTable(name = "user_cart_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+    @Builder.Default
+    private List<Course> cart = new ArrayList<>();
 
-    public void addTowhishlist(Course course) {
-        if (course == null) {
-            return;
-        }
-        archivedCourses.add(course);
-    }
 
-    public void deleteFromoWishlist(Course course) {
-        if (course == null || whishlist.isEmpty() ) {
-            return;
-        }
-        archivedCourses.remove(course);
-    }
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+    private List<Course> instructoredCourses;
 
-    public void enrollCourse(Course course) {
-        if(course==null){
-            return;
-        }
-        enrolledCourses.add(course);
-    }
-
+    
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (roles == null) {
@@ -165,5 +153,6 @@ public class User implements UserDetails {
     public String getUsername() {
         return email;
     }
+
 
 }

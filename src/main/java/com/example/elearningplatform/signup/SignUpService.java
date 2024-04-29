@@ -3,7 +3,7 @@ package com.example.elearningplatform.signup;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
 
 import javax.sql.rowset.serial.SerialException;
 
@@ -17,10 +17,12 @@ import com.example.elearningplatform.email.EmailService;
 import com.example.elearningplatform.login.oAuth2.OAuth2UserDetails;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
+import com.example.elearningplatform.user.address.Address;
+import com.example.elearningplatform.user.address.AddressRepository;
+
 import com.example.elearningplatform.user.user.Role;
 import com.example.elearningplatform.user.user.User;
 import com.example.elearningplatform.user.user.UserRepository;
-import com.example.elearningplatform.user.user.UserService;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,16 +33,27 @@ import lombok.RequiredArgsConstructor;
 public class SignUpService {
 
     private final UserRepository userRepository;
-    private final UserService userService;
     private final TokenUtil tokenUtil;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final AddressRepository addressRepository;
+
     /******************************************************************************************************************/
 
     public Response registerUser(SignUpRequest request) throws MessagingException, IOException, SQLException {
         try {
 
-            User user = userService.saveUser(request);
+            User user = User.builder().email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
+                    .age(request.getAge())
+                    .about(request.getBio()).firstName(request.getFirstName()).lastName(request.getLastName())
+                    .enabled(false)
+                    .phoneNumber(request.getPhoneNumber()).registrationDate(LocalDateTime.now()).build();
+            userRepository.save(user);
+            user.setRoles(List.of(Role.ROLE_USER));
+            userRepository.save(user);
+            Address address = Address.builder().user(user).city(request.getCity()).country(request.getCountry())
+                    .street(request.getStreet()).state(request.getState()).zipCode(request.getZipCode()).build();
+            addressRepository.save(address);
 
             return new Response(HttpStatus.OK, null, user);
 

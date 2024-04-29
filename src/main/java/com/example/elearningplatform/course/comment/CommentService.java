@@ -2,13 +2,15 @@ package com.example.elearningplatform.course.comment;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.comment.dto.CommentDto;
-import com.example.elearningplatform.course.comment.dto.CommentDtoService;
 import com.example.elearningplatform.course.comment.dto.CreateCommentRequest;
 import com.example.elearningplatform.course.comment.dto.UpdateCommentRequest;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.course.CourseService;
 import com.example.elearningplatform.course.lesson.Lesson;
 import com.example.elearningplatform.course.lesson.LessonRepository;
 import com.example.elearningplatform.response.Response;
@@ -29,7 +31,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
     private final CommentRepository commentRepository;
-    private final CommentDtoService commentDtoService;
+    private final CourseService courseService;
 
     /************************************************************************************** */
 
@@ -39,15 +41,20 @@ public class CommentService {
         try {
             Lesson lesson = lessonRepository.findById(createComment.getLessonId())
                     .orElseThrow(() -> new Exception("Lesson not found"));
+            checkCommentAuth(lesson.getId());
             lesson.incrementNumberOfComments();
-            User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
             lessonRepository.save(lesson);
 
-            Comment comment = new Comment(createComment, user, lesson);
+            User user = userRepository.findById(tokenUtil.getUserId())
+                    .orElseThrow(() -> new Exception("User not found"));
+            Comment comment = new Comment();
+            comment.setContent(createComment.getContent());
+            comment.setUser(user);
+            comment.setLesson(lesson);
             commentRepository.save(comment);
+
             return new Response(HttpStatus.OK, "Comment created successfully",
-                    commentDtoService.mapCommentDto(comment, false, true));
+                    new CommentDto(comment, false, true));
 
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
@@ -59,9 +66,16 @@ public class CommentService {
         try {
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new Exception("Comment not found"));
-            comment.getLesson().decrementNumberOfComments();
-            lessonRepository.save(comment.getLesson());
+            if (comment.getUser().getId() != tokenUtil.getUserId()) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Unauthorized", null);
+            }
+
+            Lesson lesson = commentRepository.findLesson(commentId)
+                    .orElseThrow(() -> new Exception("Lesson not found"));
+            lesson.decrementNumberOfComments();
+            lessonRepository.save(lesson);
             commentRepository.delete(comment);
+
             return new Response(HttpStatus.OK, "Comment deleted successfully", null);
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
@@ -73,59 +87,88 @@ public class CommentService {
         try {
             Comment comment = commentRepository.findById(request.getCommentId())
                     .orElseThrow(() -> new Exception("Comment not found"));
+            if (comment.getUser().getId() != tokenUtil.getUserId()) {
+                return new Response(HttpStatus.UNAUTHORIZED, "Unauthorized", null);
+            }
             comment.setContent(request.getContent());
             commentRepository.save(comment);
             return new Response(HttpStatus.OK, "Comment updated successfully",
-                    commentDtoService.mapCommentDto(comment, false, false));
+                    new CommentDto(comment, false, true));
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }
 
     /************************************************************************************** */
-    public Response likeComment(Integer commentId, Integer userId) {
+    public Response likeComment(Integer commentId) {
         try {
+
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new Exception("Comment not found"));
-            User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
-            comment.addLike(user);
+            Lesson lesson = commentRepository.findLesson(commentId)
+                    .orElseThrow(() -> new Exception("Lesson not found"));
+            checkCommentAuth(lesson.getId());
+            commentRepository.likeComment(tokenUtil.getUserId(), commentId);
+
+            comment.incrementNumberOfLikes();
             commentRepository.save(comment);
+            // User user = userRepository.findById(userId).orElseThrow(() -> new
+            // Exception("User not found"));
+            // List<User> likes = commentRepository.findLikes(commentId);
+            // likes.add(user);
+            // comment.setLikes(likes);
+            // commentRepository.save(comment);
+
             return new Response(HttpStatus.OK, "Comment liked successfully", null);
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }
 
-    /************************************************************************************** */
+    /**
+     * @throws Exception ************************************************************************************
+     */
 
-    public List<CommentDto> getCommentsByLessonId(Integer commentId) {
-        try {
-            List<Comment> commentes = commentRepository.findByLessonId(commentId);
+    public List<CommentDto> getCommentsByLessonId(Integer lessonId, Integer pageNumber) throws Exception {
 
-            List<Comment> votedComments = commentRepository.findByLikes(tokenUtil.getUserId());
+        checkCommentAuth(lessonId);
 
-            List<CommentDto> commentesDto = commentes.stream().map(comment -> {
-                Boolean isVotedByUser = votedComments.contains(comment);
-                Boolean isCreatedByUser = comment.getUser().getId().equals(tokenUtil.getUserId());
-                return commentDtoService.mapCommentDto(comment, isVotedByUser, isCreatedByUser);
-            }).toList();
+            List<Comment> commentes = commentRepository.findByLessonId(lessonId, PageRequest.of(pageNumber, 5));
+            List<Comment> likedComments = commentRepository.findLikedCommentsByUserIdAndLesson(tokenUtil.getUserId(),
+                    lessonId);
+
+            List<CommentDto> commentesDto = commentes.stream().map(comment -> new CommentDto(
+                    comment,
+                    likedComments.contains(comment),
+                    comment.getUser().getId().equals(tokenUtil.getUserId()))).toList();
             return commentesDto;
-        } catch (Exception e) {
-            return null;
-        }
+
 
     }
 
-    public Response removeLikeComment(Integer commentId, Integer userId) {
+    public Response removeLikeComment(Integer commentId) {
         try {
             Comment comment = commentRepository.findById(commentId)
                     .orElseThrow(() -> new Exception("Comment not found"));
-            User user = userRepository.findById(userId).orElseThrow(() -> new Exception("User not found"));
-            comment.removeLike(user);
+
+            Lesson lesson = commentRepository.findLesson(commentId)
+                    .orElseThrow(() -> new Exception("Lesson not found"));
+            checkCommentAuth(lesson.getId());
+            comment.decrementNumberOfLikes();
             commentRepository.save(comment);
+            commentRepository.removeLikeFromComment(tokenUtil.getUserId(), commentId);
+
             return new Response(HttpStatus.OK, "Comment unliked successfully", null);
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
+    }
+    @Transactional
+    public void checkCommentAuth(Integer lessonId) throws Exception {
+
+        Course course = lessonRepository.findCourseByLessonId(lessonId)
+                .orElseThrow(() -> new Exception("Course not found"));
+        if (courseService.ckeckCourseSubscribe(course.getId()) == false)
+            throw new RuntimeException("Unauthorized");
     }
 }

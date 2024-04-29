@@ -46,7 +46,7 @@ public class Review {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = jakarta.persistence.FetchType.EAGER)
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @ToString.Exclude
     @JoinColumn(name = "course_id")
     private Course course;

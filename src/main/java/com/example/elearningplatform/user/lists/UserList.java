@@ -26,18 +26,12 @@ public class UserList {
     private Integer id;
     private String name;
     private String description;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "lists_courses", joinColumns = @JoinColumn(name = "list_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private List<Course> courses = new ArrayList<>();
 
-    public void addCourse(Course course) {
-        this.courses.add(course);
-    }
-    public void removeCourse(Course course) {
-        this.courses.remove(course);
-    }
 }

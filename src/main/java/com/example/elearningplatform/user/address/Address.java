@@ -36,7 +36,7 @@ public class Address {
     @Column(name = "zip_code")
     private String zipCode;
 
-    @OneToOne
+    @OneToOne( fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }

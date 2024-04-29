@@ -1,5 +1,6 @@
 package com.example.elearningplatform.course.comment.dto;
 
+import com.example.elearningplatform.course.comment.Comment;
 import com.example.elearningplatform.user.user.dto.InstructorDto;
 
 import lombok.Getter;
@@ -11,7 +12,7 @@ import lombok.ToString;
 @ToString
 public class CommentDto {
     private Integer id;
-    private Boolean isVotedByUser = false;
+    private Boolean isLikedByUser = false;
     private Boolean isCreatedByUser = false;
     private InstructorDto user;
     private String content;
@@ -19,16 +20,17 @@ public class CommentDto {
     private Integer numberOfReplyes = 0;
     private Integer numberOfLikes = 0;
 
-    // public CommentDto(Comment comment, Boolean isVotedByUser, Boolean
-    // isCreatedByUser) {
+    public CommentDto(Comment comment, Boolean isLikedByUser, Boolean isCreatedByUser) {
 
-    // if (comment == null)
-    // return;
-    // this.numberOfReplyes = comment.getNumberOfReplies();
-    // this.content=comment.getContent();
-    // this.isCreatedByUser=isCreatedByUser;
-    // this.isVotedByUser=
-
-    // }
+        if (comment == null)
+            return;
+        this.content = comment.getContent();
+        this.isCreatedByUser = isCreatedByUser;
+        this.isLikedByUser = isLikedByUser;
+        this.id = comment.getId();
+        this.user = new InstructorDto(comment.getUser());
+        this.numberOfLikes = comment.getNumberOfLikes();
+        this.numberOfReplyes = comment.getNumberOfReplies();
+    }
 
 }

@@ -1,39 +1,39 @@
 package com.example.elearningplatform;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.example.elearningplatform.course.course.CourseRepository;
-import com.example.elearningplatform.user.user.User;
-import com.example.elearningplatform.user.user.UserRepository;
+import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.lesson.LessonRepository;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.Setter;
 
 @SpringBootApplication
-@RequiredArgsConstructor
+@Setter
 public class ELearningPlatformApplication
         implements ApplicationRunner {
-    // private final GenerateData generateData;
+    @Autowired
+    private LessonRepository lessonRepository;
 
-    // private final ReviewRepository reviewRepository;
-    // private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
-    private final CourseRepository courseRepository;
 
-    // private final CartRepository cartRepository;
     /*********************************************************************************** */
     public static void main(String[] args) {
         SpringApplication.run(ELearningPlatformApplication.class, args);
+
 
     }
 
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) throws Exception {
-        System.out.println("Hello World from Application Runner");
- 
+        System.out.println("Hello, World!");
+        // Course course = lessonRepository.findCourseByLessonId(603).orElse(null);
+        // System.out.println(course);
         // System.out.println(user.);
 
         // generateData.truncateDtabase();

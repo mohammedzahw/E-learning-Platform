@@ -2,23 +2,20 @@ package com.example.elearningplatform.course.section;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.elearningplatform.course.lesson.LessonRepository;
-import com.example.elearningplatform.course.lesson.LessonService;
-
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import jakarta.transaction.Transactional;
+import lombok.Setter;
 
 
 @Service
-@Data
-@RequiredArgsConstructor
+@Setter
+@Transactional
 public class SectionService {
-    private final LessonService lessonService;
 
-    private final SectionRepository sectionRepository;
-    private final LessonRepository lessonRepository;
+    @Autowired
+    private SectionRepository sectionRepository;
 
     /************************************************************************************** */
 
