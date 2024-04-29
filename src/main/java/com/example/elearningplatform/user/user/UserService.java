@@ -73,6 +73,7 @@ public class UserService {
     public Response getCart() {
         try {
 
+            
             List<SearchCourseDto> courses = userRepository.findCartCourses(tokenUtil.getUserId()).stream()
                     .map(course -> new SearchCourseDto(
                             course, courseRepository.findCourseInstructors(course.getId()),

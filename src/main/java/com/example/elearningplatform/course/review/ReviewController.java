@@ -18,8 +18,8 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @GetMapping("/get-reviews/{courseId}")
-    public ReviewResponse getReview(@PathVariable("courseId") String courseId) {
-        return reviewService.getReviewsByCourseId(Integer.parseInt(courseId));
+    public ReviewResponse getReview(@PathVariable("courseId") Integer courseId) {
+        return reviewService.getReviewsByCourseId(courseId);
 
     }
     

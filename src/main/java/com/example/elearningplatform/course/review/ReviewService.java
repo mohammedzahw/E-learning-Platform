@@ -28,19 +28,24 @@ public class ReviewService {
         try {
 
             List<ReviewDto> reviews = new ArrayList<>();
-            final boolean[] isReviewd = {false};
+            ReviewResponse reviewResponse = new ReviewResponse();
+
 
             courseRepository.findCourseReviews(courseId).forEach(review -> {
                 ReviewDto reviewDto = new ReviewDto(review);
-                if (review.getUser().getId() == tokenUtil.getUserId()) {
-                    isReviewd[0] = true;
+                System.out.println(review.getUser().getId());
+                System.out.println(review.getUser().getId());
+                System.out.println(review.getUser().getId());
+                System.out.println(review.getUser().getId());
+                if (reviewDto.getUser().getId() == tokenUtil.getUserId()) {
+                    reviewResponse.setIsReviewd(true);
                     reviews.addFirst(reviewDto);
                 }
                 reviews.add(reviewDto);
             });
-            return new ReviewResponse(HttpStatus.OK, "Success", reviews, isReviewd[0]);
+            return new ReviewResponse(HttpStatus.OK, "Success", reviews);
         } catch (Exception e) {
-            return new ReviewResponse(HttpStatus.NOT_FOUND, "Reviews not found", null, null);
+            return new ReviewResponse(HttpStatus.NOT_FOUND, "Reviews not found", null);
         }
     }
 
