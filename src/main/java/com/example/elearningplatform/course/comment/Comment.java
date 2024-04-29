@@ -55,7 +55,7 @@ public class Comment  {
     @JoinColumn(name = "lesson_id")
     private Lesson lesson;
 
-    @ManyToMany(fetch = jakarta.persistence.FetchType.LAZY,cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = jakarta.persistence.FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     List<User> likes = new ArrayList<>();

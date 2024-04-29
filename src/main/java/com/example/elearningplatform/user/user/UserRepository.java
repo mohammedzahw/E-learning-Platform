@@ -118,14 +118,14 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     /*****************************************************************************************************/
     @Query("""
             SELECT u.cart FROM User u join u.cart c
-            WHERE u.id = :id And c.id = :userId
+            WHERE u.id = :userId And c.id = :id
             """)
     Optional<Course> findCourseInCart(@Param("id") Integer id, @Param("userId") Integer userId);
 
     /*************************************************************************************************** */
     @Query("""
             SELECT u.enrolledCourses FROM User u join u.enrolledCourses e
-            WHERE u.id = :id And e.id = :userId
+            WHERE u.id = :userId And e.id = :id
             """)
     Optional<Course> findCourseInEnrolled(@Param("id") Integer id, @Param("userId") Integer userId);
 
@@ -139,14 +139,14 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     /*************************************************************************************************** */
     @Query("""
             SELECT u.whishlist FROM User u join u.whishlist w
-            WHERE u.id = :id And w.id = :userId
+            WHERE u.id = :userId And w.id = :id
             """)
     Optional<Course> findCourseInWhishList(@Param("id") Integer id, @Param("userId") Integer userId);
 
     /*************************************************************************************************** */
     @Query("""
             SELECT u.archivedCourses FROM User u join u.archivedCourses a
-            WHERE u.id = :id And a.id = :userId
+            WHERE u.id = :userId And a.id = :id
             """)
     Optional<Course> findCourseInArchived(@Param("id") Integer id, @Param("userId") Integer userId);
     /*************************************************************************************************** */

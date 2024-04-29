@@ -54,7 +54,7 @@ public class Reply {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @ManyToMany(fetch = jakarta.persistence.FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = jakarta.persistence.FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "reply_likes", joinColumns = @JoinColumn(name = "reply_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     List<User> likes = new ArrayList<>();

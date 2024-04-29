@@ -2,14 +2,16 @@ package com.example.elearningplatform.login;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Map;
 import java.time.LocalDateTime;
+import java.util.Map;
+
 import javax.sql.rowset.serial.SerialException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.login.oAuth2.OAuth2UserDetails;
 import com.example.elearningplatform.login.oAuth2.OAuth2UserGitHub;
 import com.example.elearningplatform.login.oAuth2.OAuth2UserGoogle;
@@ -38,7 +40,7 @@ public class LoginService {
          User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new IllegalArgumentException("User not found!"));
       
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return new Response(HttpStatus.BAD_REQUEST, "Wrong Password!", null);
+            throw new CustomException("Wrong Password!", HttpStatus.BAD_REQUEST);
         }
         if (!user.isEnabled()) {
             String token = tokenUtil.generateToken(loginRequest.getEmail(),1000, 1000L);
@@ -67,7 +69,7 @@ public class LoginService {
             } else if (registrationId.equals("github")) {
                 oAuth2UserDetails = new OAuth2UserGitHub(principal);
             } else {
-                return new Response(HttpStatus.BAD_REQUEST, "Provider not supported!", null);
+                throw new CustomException("Provider not supported!", HttpStatus.BAD_REQUEST);
             }
 
             User user = userRepository.findByEmail(oAuth2UserDetails.getName()).orElse(null);
@@ -80,6 +82,8 @@ public class LoginService {
             String token = tokenUtil.generateToken(user.getEmail(), user.getId(), 3000000L);
 
             return new Response(HttpStatus.OK, "Success!", token);
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
             return new Response(HttpStatus.BAD_REQUEST, "Provider not supported!", null);
         }

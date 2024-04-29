@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
+import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.user.lists.dto.CreateUserList;
@@ -57,7 +58,7 @@ public class UserListService {
     public Response getlist(Integer listId) {
         try { // User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
             UserList list = userListRepository.findById(listId)
-                    .orElseThrow(() -> new RuntimeException("List not found"));
+                    .orElseThrow(() -> new CustomException("List not found", HttpStatus.NOT_FOUND));
             UserListDto UserListDto = new UserListDto(list);
 
             List<SearchCourseDto> courses = userListRepository.findCourses(listId).stream()
@@ -68,9 +69,14 @@ public class UserListService {
                     .toList();
             UserListDto.setCourses(courses);
             return new Response(HttpStatus.OK, "Success", UserListDto);
-        } catch (Exception e) {
+        }
+        catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        } 
+        catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
+        
     }
 
     /************************************************************************************************** */
@@ -78,12 +84,16 @@ public class UserListService {
     public Response addTolist(Integer listId, Integer courseId) {
         try {
             if (userListRepository.findCourse(listId, courseId).isPresent())
-                return new Response(HttpStatus.BAD_REQUEST, "Course already in list", null);
+                throw new CustomException("Course already in list", HttpStatus.BAD_REQUEST);
 
             userListRepository.addToUserList(listId, courseId);
 
             return new Response(HttpStatus.OK, "Success", null);
-        } catch (Exception e) {
+        }
+        catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        } 
+        catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
 
@@ -93,11 +103,15 @@ public class UserListService {
     public Response deleteList(Integer listId) {
         try {
             UserList list = userListRepository.findById(listId)
-                    .orElseThrow(() -> new RuntimeException("List not found"));
+                    .orElseThrow(() ->new CustomException("List not found", HttpStatus.NOT_FOUND));
 
             userListRepository.delete(list);
             return new Response(HttpStatus.OK, "Success", null);
-        } catch (Exception e) {
+        }
+        catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        } 
+        catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }
@@ -108,7 +122,7 @@ public class UserListService {
 
         try {
             UserList list = userListRepository.findById(newlist.getListId())
-                    .orElseThrow(() -> new RuntimeException("List not found"));
+                    .orElseThrow(() -> new CustomException("List not found", HttpStatus.NOT_FOUND));
 
             if (newlist.getName() != null)
                 list.setName(newlist.getName());
@@ -117,7 +131,11 @@ public class UserListService {
             userListRepository.save(list);
 
             return new Response(HttpStatus.OK, "Success", new UserListDto(list));
-        } catch (Exception e) {
+        } 
+        catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        }
+        catch (Exception e) {
 
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
@@ -128,10 +146,14 @@ public class UserListService {
     public Response deleteCourseFromList(Integer listId, Integer courseId) {
         try {
             if (!userListRepository.findCourse(listId, courseId).isPresent())
-                return new Response(HttpStatus.BAD_REQUEST, "Course is not in list", null);
+                throw new CustomException("Course not in list", HttpStatus.BAD_REQUEST);
             userListRepository.removeFromUserList(listId, courseId);
             return new Response(HttpStatus.OK, "Success", null);
-        } catch (Exception e) {
+        }
+        catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        }
+         catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }

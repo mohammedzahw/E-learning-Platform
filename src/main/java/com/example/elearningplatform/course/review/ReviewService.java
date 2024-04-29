@@ -24,6 +24,7 @@ public class ReviewService {
     private final TokenUtil tokenUtil;
 
     /************************************************************************************************* */
+    @SuppressWarnings("unlikely-arg-type")
     public ReviewResponse getReviewsByCourseId(Integer courseId) {
         try {
 
@@ -33,11 +34,8 @@ public class ReviewService {
 
             courseRepository.findCourseReviews(courseId).forEach(review -> {
                 ReviewDto reviewDto = new ReviewDto(review);
-                System.out.println(review.getUser().getId());
-                System.out.println(review.getUser().getId());
-                System.out.println(review.getUser().getId());
-                System.out.println(review.getUser().getId());
-                if (reviewDto.getUser().getId() == tokenUtil.getUserId()) {
+           
+                if (reviewDto.getUser().getId().equals(tokenUtil.getUserId())) {
                     reviewResponse.setIsReviewd(true);
                     reviews.addFirst(reviewDto);
                 }

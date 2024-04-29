@@ -14,6 +14,7 @@ import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.course.lesson.dto.LessonDto;
 import com.example.elearningplatform.course.section.SectionRepository;
 import com.example.elearningplatform.course.section.dto.SectionDto;
+import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 
@@ -128,7 +129,7 @@ public class CourseService {
         public Response getCourse(Integer courseId) {
                 try {
                         Course course = courseRepository.findById(courseId)
-                                        .orElseThrow(() -> new RuntimeException("Course not found"));
+                                        .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
                         CourseDto courseDto = new CourseDto(
                                         course, ckeckCourseSubscribe(courseId),
                                         courseRepository.findCourseInstructors(courseId),
@@ -147,7 +148,11 @@ public class CourseService {
 
                         return new Response(HttpStatus.OK, "Course fetched successfully", courseDto);
 
-                } catch (Exception e) {
+                }
+                catch(CustomException e) {
+                        return new Response(e.getStatus(), e.getMessage(), null);
+                }
+                 catch (Exception e) {
                         return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
                 }
         }
@@ -156,7 +161,7 @@ public class CourseService {
 
         public Boolean ckeckCourseSubscribe(Integer courseId) {
                 Integer userId = tokenUtil.getUserId();
-                if (userId == null)
+                if (userId.equals(null))
                         return false;
                 return courseRepository.findEnrolledCourseByUserIdAndCourseId(userId, courseId).isPresent();
         }

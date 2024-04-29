@@ -16,6 +16,7 @@ import com.example.elearningplatform.course.lesson.Lesson;
 import com.example.elearningplatform.course.reply.dto.CreateReplyRequest;
 import com.example.elearningplatform.course.reply.dto.ReplyDto;
 import com.example.elearningplatform.course.reply.dto.UpdateReplyRequest;
+import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.user.user.User;
@@ -106,14 +107,18 @@ public class ReplyService {
         try {
             Reply reply = replyRepository.findById(request.getReplyId()).orElseThrow();
             if (!reply.getUser().getId().equals(tokenUtil.getUserId())) {
-                return new Response(HttpStatus.UNAUTHORIZED, "Unauthorized",
-                        "You are not allowed to update this reply");
+                throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
             }
             reply.setContent(request.getContent());
             replyRepository.save(reply);
             return new Response(HttpStatus.OK, "Reply updated successfully",
                     new ReplyDto(reply, false, true));
-        } catch (Exception e) {
+        } 
+        catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        } 
+        
+        catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }
@@ -125,11 +130,15 @@ public class ReplyService {
 
             replyRepository.likeReply(tokenUtil.getUserId(), replyId);
             Reply reply = replyRepository.findById(replyId)
-                    .orElseThrow(() -> new IllegalArgumentException("Reply not found"));
+                    .orElseThrow(() -> new CustomException("Reply not found", HttpStatus.NOT_FOUND));
             reply.incrementNumberOfLikes();
             replyRepository.save(reply);
             return new Response(HttpStatus.OK, "Reply liked successfully", null);
-        } catch (Exception e) {
+        } 
+        catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        }
+        catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
 
@@ -142,7 +151,7 @@ public class ReplyService {
 
             replyRepository.removeLikeFromReply(tokenUtil.getUserId(), replyId);
             Reply reply = replyRepository.findById(replyId)
-                    .orElseThrow(() -> new IllegalArgumentException("Reply not found"));
+                    .orElseThrow(() -> new CustomException("Reply not found", HttpStatus.NOT_FOUND));
             reply.decrementNumberOfLikes();
 
             replyRepository.save(reply);
@@ -155,7 +164,7 @@ public class ReplyService {
     public void checkReplyAuth(Integer replyId) {
         Course course = replyRepository.findCourseByReplyId(replyId).orElseThrow();
         if (courseService.ckeckCourseSubscribe(course.getId()) == false)
-            throw new RuntimeException("Unauthorized");
+            throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
 }
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
+import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.user.user.dto.ProfileDto;
@@ -112,11 +113,13 @@ public class UserService {
         try {
 
             if (userRepository.findCourseInWhishList(courseId, tokenUtil.getUserId()).isPresent()) {
-                return new Response(HttpStatus.BAD_REQUEST, "Course already in wishlist", null);
+                throw new CustomException("Course already in wishlist", HttpStatus.BAD_REQUEST);
             }
 
             userRepository.addToWishlist(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course added to wishlist", null);
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
         }
@@ -129,13 +132,15 @@ public class UserService {
         try {
 
             if (userRepository.findCourseInWhishList(courseId, tokenUtil.getUserId()).isPresent() == false) {
-                return new Response(HttpStatus.BAD_REQUEST, "Course is not in wishlist", null);
+                throw new CustomException("Course is not in wishlist", HttpStatus.BAD_REQUEST);
             }
 
             userRepository.removeFromWishlist(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course deleted from wishlist", null);
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
-            return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
 
     }
@@ -146,11 +151,13 @@ public class UserService {
         try {
 
             if (userRepository.findCourseInArchived(courseId, tokenUtil.getUserId()).isPresent()) {
-                return new Response(HttpStatus.BAD_REQUEST, "Course already in archived", null);
+                throw new CustomException("Course already in archived", HttpStatus.BAD_REQUEST);
             }
 
             userRepository.addToArchivedCourses(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course added to archived", null);
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
 
@@ -164,11 +171,13 @@ public class UserService {
         try {
 
             if (userRepository.findCourseInArchived(courseId, tokenUtil.getUserId()).isPresent() == false) {
-                return new Response(HttpStatus.BAD_REQUEST, "Course is not in archived", null);
+                throw new CustomException("Course is not in archived", HttpStatus.BAD_REQUEST);
             }
 
             userRepository.removeFromArchivedCourses(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course deleted from archived", null);
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
         }
@@ -179,10 +188,12 @@ public class UserService {
     public Response getProfile() {
         try {
             User user = userRepository.findById(tokenUtil.getUserId())
-                    .orElseThrow(() -> new Exception("User not found"));
+                    .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
             ProfileDto profileDto = new ProfileDto(user);
 
             return new Response(HttpStatus.OK, "Success", profileDto);
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
             return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
 

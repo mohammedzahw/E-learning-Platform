@@ -104,7 +104,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/user/get-user/**", "/check-token/**", "/verifyEmail/**", "/signup/**", "/login/**",
+                .requestMatchers(
+                    "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**",
+                    
+                    "/user/get-user/**", "/check-token/**", "/verifyEmail/**", "/signup/**", "/login/**",
                         "/forget-password/**", "/course/**")
                 .permitAll()
                 .anyRequest()
