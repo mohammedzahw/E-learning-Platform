@@ -86,7 +86,7 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                     "/user/get-user/**", "/check-token/**", "/verifyEmail/**", "/signup/**", "/login/**",
-                        "/forget-password/**", "/course/**")
+                        "/forget-password/**", "/course/**","/review/get-reviews/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -97,7 +97,5 @@ public class SecurityConfig {
         return http.build();
     }
     /***************************************************************************************************** */
-            // .oauth2Login(login ->
-            // login.loginPage("/login").defaultSuccessUrl("/login/outh2"));
-
+            
 }

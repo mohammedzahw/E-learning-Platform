@@ -179,7 +179,7 @@ public class CommentService {
 
         Course course = lessonRepository.findCourseByLessonId(lessonId)
                 .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
-        if (courseService.ckeckCourseSubscribe(course.getId()) == false)
+        if (courseService.ckeckCourseSubscribe(course.getId()).equals(false))
             throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
 }

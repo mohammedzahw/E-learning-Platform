@@ -58,7 +58,7 @@ public class UserService {
 
     public Response deleteFromCart(Integer courseId) {
         try {
-            if (userRepository.findCourseInCart(courseId, tokenUtil.getUserId()).isPresent() == false) {
+            if (!userRepository.findCourseInCart(courseId, tokenUtil.getUserId()).isPresent()) {
                 return new Response(HttpStatus.BAD_REQUEST, "Course is not in cart", null);
             }
 
@@ -131,7 +131,7 @@ public class UserService {
 
         try {
 
-            if (userRepository.findCourseInWhishList(courseId, tokenUtil.getUserId()).isPresent() == false) {
+            if (!userRepository.findCourseInWhishList(courseId, tokenUtil.getUserId()).isPresent()) {
                 throw new CustomException("Course is not in wishlist", HttpStatus.BAD_REQUEST);
             }
 
@@ -170,7 +170,7 @@ public class UserService {
 
         try {
 
-            if (userRepository.findCourseInArchived(courseId, tokenUtil.getUserId()).isPresent() == false) {
+            if (!userRepository.findCourseInArchived(courseId, tokenUtil.getUserId()).isPresent()) {
                 throw new CustomException("Course is not in archived", HttpStatus.BAD_REQUEST);
             }
 

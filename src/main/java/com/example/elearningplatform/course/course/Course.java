@@ -76,6 +76,15 @@ public class Course {
           this.lastUpdateDate = LocalDate.now();
         }
 
+        public void addRating(Double rating) {
+          this.totalRatings += rating;
+          this.numberOfRatings += 1;
+        }
+        public void removeRating(Double rating) {
+          this.totalRatings -= rating;
+          this.numberOfRatings -= 1;
+        }
+
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "course",cascade = CascadeType.REMOVE)
         @ToString.Exclude
         private List<Section> sections = new ArrayList<>();
@@ -104,13 +113,11 @@ public class Course {
         public void incrementNumberOfEnrollments() {
           this.numberOfEnrollments++;
         }
-
-        public void incrementNumberOfRatings() {
-          this.numberOfRatings++;
+        public void decrementNumberOfEnrollments() {
+          this.numberOfEnrollments--;
         }
 
-        public void addRating(Double rating) {
-          this.totalRatings += rating;
-        }
+       
+
 
 }
