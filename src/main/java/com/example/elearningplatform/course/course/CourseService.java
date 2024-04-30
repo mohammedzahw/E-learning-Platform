@@ -161,7 +161,7 @@ public class CourseService {
 
         public Boolean ckeckCourseSubscribe(Integer courseId) {
                 Integer userId = tokenUtil.getUserId();
-                if (userId.equals(null))
+                if (userId == null)
                         return false;
                 return courseRepository.findEnrolledCourseByUserIdAndCourseId(userId, courseId).isPresent();
         }

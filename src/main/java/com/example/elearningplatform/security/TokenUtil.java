@@ -40,7 +40,7 @@ UserRepository userRepository;
         claims.put(CLAIMS_SUBJECT, email);
         claims.put("userId", userId);
         claims.put(CLAIMS_CREATED, new Date());
-
+    
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(generateExpirationDate(TOKEN_VALIDITY))

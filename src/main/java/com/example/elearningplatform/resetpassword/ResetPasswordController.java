@@ -33,33 +33,32 @@ public class ResetPasswordController {
     private final UserRepository userRepository;
     private final TokenUtil tokenUtil;
 
-    /***************************************************************************************************************/
     /*************************************************************************************************************/
 
-    @PostMapping("/forget-password/send-email")
+    @PostMapping("/forget-password")
 
-    public Response sendEmail(@RequestBody @Valid ResetPaswordRequest data, HttpServletRequest request,
+    public Response sendEmail(@RequestParam("email") String email, HttpServletRequest request,
             BindingResult result)
             throws MessagingException, SQLException, IOException {
         if (result.hasErrors()) {
             return Validator.validate(result);
         }
 
-        User user = userRepository.findByEmail(data.getEmail()).orElse(null);
+        User user = userRepository.findByEmail(email).orElse(null);
         // System.out.println(user);
         if (user == null)
             return new Response(HttpStatus.BAD_REQUEST, "User not found", null);
         if (!user.isEnabled()) {
-            return signUpService.sendRegistrationVerificationCode(data.getEmail(), request,
-                    tokenUtil.generateToken(data.getEmail(), 1000, 1000L));
+            return signUpService.sendRegistrationVerificationCode(email, request,
+                    tokenUtil.generateToken(email, 1000, 1000L));
         }
-        return resetPasswordService.sendResetpasswordEmail(data.getEmail(), request,
-                tokenUtil.generateToken(data.getEmail(), 1000, 1000L));
+        return resetPasswordService.sendResetpasswordEmail(email, request,
+                tokenUtil.generateToken(email, 1000, 1000L));
     }
 
     /***************************************************************************************************************/
 
-    @PostMapping("/forget-password/save-password")
+    @PostMapping("/change-password")
     public Response changePassword(@RequestBody @Valid ChangePasswordRequest data, BindingResult result,
             HttpServletRequest request)
             throws SQLException, IOException, MessagingException {

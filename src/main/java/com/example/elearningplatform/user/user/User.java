@@ -12,14 +12,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.user.address.Address;
+import com.example.elearningplatform.user.role.Role;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -45,6 +42,7 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
+    @Column(unique = true)
     private String email;
     private String firstName;
 
@@ -70,43 +68,41 @@ public class User implements UserDetails {
     private Address address;
 
 
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @ToString.Exclude
-    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "user_role")
-    @Column(name = "role")
+  @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "user_enrolled_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     @Builder.Default
     private List<Course> enrolledCourses = new ArrayList<>();
 
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "user_archived_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     @Builder.Default
     private List<Course> archivedCourses = new ArrayList<>();
 
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "user_whishlist_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     @Builder.Default
     private List<Course> whishlist = new ArrayList<>();
 
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "user_cart_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     @Builder.Default
     private List<Course> cart = new ArrayList<>();
 
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private List<Course> instructoredCourses;
@@ -119,7 +115,7 @@ public class User implements UserDetails {
         }
 
         Collection<? extends GrantedAuthority> mapRoles = roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.toString()))
+                .map(role -> new SimpleGrantedAuthority(role.getRole()))
                 .collect(Collectors.toList());
         return mapRoles;
     }

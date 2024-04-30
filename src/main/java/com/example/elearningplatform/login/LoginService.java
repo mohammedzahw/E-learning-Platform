@@ -32,6 +32,7 @@ public class LoginService {
     private final TokenUtil tokenUtil;
     private final UserRepository userRepository;
 
+
     /***************************************************************************************************************/
     public Response verifyLogin(LoginRequest loginRequest, HttpServletRequest request)
             throws SQLException, IOException {
@@ -88,4 +89,5 @@ public class LoginService {
             return new Response(HttpStatus.BAD_REQUEST, "Provider not supported!", null);
         }
     }
+
 }
