@@ -78,26 +78,26 @@ public class SecurityConfig {
 
     /***************************************************************************************************** */
 
-    @SuppressWarnings("removal")
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
-                        "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/",
-                    
+                        "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                     "/user/get-user/**", "/check-token/**", "/verifyEmail/**", "/signup/**", "/login/**",
                         "/forget-password/**", "/course/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-                .and()
-                .addFilterBefore(authFilter(), UsernamePasswordAuthenticationFilter.class));
-                // .oauth2Login(login -> login.loginPage("/login").defaultSuccessUrl("/login/outh2"));
-        // http.oauth2Login(login -> login.loginPage("/login").defaultSuccessUrl("/login/outh2"));
-    
+        ).addFilterAfter(authFilter(), UsernamePasswordAuthenticationFilter.class);
+        // http.oauth2Login(login ->
+        // login.loginPage("/login").defaultSuccessUrl("/login/outh2"));
+
         return http.build();
     }
     /***************************************************************************************************** */
+            // .oauth2Login(login ->
+            // login.loginPage("/login").defaultSuccessUrl("/login/outh2"));
 
 }
