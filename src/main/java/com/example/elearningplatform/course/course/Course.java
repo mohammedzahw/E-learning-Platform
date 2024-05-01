@@ -93,16 +93,23 @@ public class Course {
         @ToString.Exclude
         private List<Review> reviews = new ArrayList<>();
 
-        @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
+        @ManyToMany(fetch = FetchType.LAZY)
         @ToString.Exclude
         @JoinTable(name = "course_tag", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "tag_id", unique = false))
         private List<Tag> tags = new ArrayList<>();
 
-        @ManyToMany(fetch = FetchType.LAZY, mappedBy = "instructoredCourses",cascade = CascadeType.REMOVE)
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "user_id", unique = false))
         @ToString.Exclude
         private List<User> instructors = new ArrayList<>();
 
-        @ManyToMany(fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "user_enrolled_courses", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "user_id", unique = false))
+        @ToString.Exclude
+        private List<User> enrolledStudents = new ArrayList<>();
+
+
+        @ManyToMany(fetch = FetchType.LAZY)
         @ToString.Exclude
         @JoinTable(joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "category_id", unique = false))
         private List<Category> categories = new ArrayList<>();

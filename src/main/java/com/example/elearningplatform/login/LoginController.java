@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
@@ -56,27 +57,34 @@ public class LoginController implements ErrorController {
     }
 
     /*****************************************************************************************************************/
-    @GetMapping("/google")
-    public String loginWithGoogle() {
+    @GetMapping("/login/google")
+    public RedirectView loginWithGoogle() {
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl("http://localhost:8080/oauth2/authorization/google");
 
-        return "redirect:/oauth2/authorization/google";
+        return redirectView;
     }
 
     /*****************************************************************************************************************/
     /*****************************************************************************************************************/
-    @GetMapping("/github")
-    public String loginWithGithub() {
-        return "redirect:/oauth2/authorization/github";
+    @GetMapping("/login/github")
+    public RedirectView loginWithGithub() {
+
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl("http://localhost:8080/oauth2/authorization/github");
+        return redirectView;
+       
     }
 
     /*****************************************************************************************************************/
 
-    @GetMapping("/login/oauth2")
+    @GetMapping("/login/oauth2/success")
     public Response loginOuth2(@AuthenticationPrincipal OAuth2User oAuth2User)
             throws SerialException, IOException, SQLException {
         System.out.println("mohamed");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // System.out.println(authentication);
         try {
             if (authentication instanceof OAuth2AuthenticationToken) {
 

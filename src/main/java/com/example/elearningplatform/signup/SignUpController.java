@@ -71,7 +71,7 @@ public class SignUpController {
 
     /******************************************************************************************************************/
 
-    @GetMapping("/verifyEmail")
+    @GetMapping("/verifyEmail/{token}")
 
     public Response verifyEmail(@PathVariable("token") String verficationToken) throws SQLException, IOException {
         // System.out.println(verficationToken);

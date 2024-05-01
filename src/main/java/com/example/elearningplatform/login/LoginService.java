@@ -72,8 +72,11 @@ public class LoginService {
             } else {
                 throw new CustomException("Provider not supported!", HttpStatus.BAD_REQUEST);
             }
+            // System.out.println("user name : " + oAuth2UserDetails.getName());
 
-            User user = userRepository.findByEmail(oAuth2UserDetails.getName()).orElse(null);
+            User user = userRepository.findByEmail(oAuth2UserDetails.getEmail()).orElse(null);
+            // System.out.println(user);
+         
             if (user == null) {
                 user = signUpService.registerOuth2(oAuth2UserDetails);
             }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.exception.CustomException;
@@ -86,6 +87,20 @@ public class UserService {
     }
 
 
+    public Response deleteUser() {
+        try {
+            User user = userRepository.findById(tokenUtil.getUserId())
+                    .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+                    
+            // List<Course> courses = userRepository.findInstructedCourses(tokenUtil.getUserId());
+            userRepository.delete(user);
+            return new Response(HttpStatus.OK, "User deleted successfully", null);
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        } catch (Exception e) {
+            return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+        }
+    }
 
     
 }

@@ -63,12 +63,12 @@ public class User implements UserDetails {
     private Integer age;
 
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToOne(fetch = FetchType.LAZY,mappedBy = "user", cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private Address address;
 
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
   @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
@@ -102,7 +102,7 @@ public class User implements UserDetails {
     private List<Course> cart = new ArrayList<>();
 
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private List<Course> instructoredCourses;

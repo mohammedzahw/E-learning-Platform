@@ -79,20 +79,22 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
                         "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                        "/oauth2/**","/category/all/**",
+                        "/oauth2/**","/category/all/**","/user/get-all-users","/user/delete-user/**",
                     "/user/get-user/**", "/check-token/**", "/verifyEmail/**", "/signup/**", "/login/**",
                         "/forget-password/**", "/course/**","/review/get-reviews/**")
                 .permitAll()
                 .anyRequest().hasAnyRole("USER", "ADMIN", "INSTRUCTOR")
                
-        ).addFilterBefore(authFilter(), UsernamePasswordAuthenticationFilter.class);
-        // http.oauth2Login(login -> login.defaultSuccessUrl("/login/oauth2"));
-        // // Add this block
-        // http.exceptionHandling(
-        //         exceptionHandling -> exceptionHandling.accessDeniedHandler((request, response, exception) -> {
-        //             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        //             response.getWriter().write("Access Denied");
-        //         }));
+        ).addFilterAfter(authFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        http.exceptionHandling(exceptionHandling -> exceptionHandling
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Access Denied");
+                }));
+
+        http.oauth2Login(login -> login.defaultSuccessUrl("/login/oauth2/success"));
+
 
         return http.build();
     }

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,8 +70,8 @@ public class ResetPasswordController {
     }
 
     /***************************************************************************************************************/
-    @GetMapping("/check-token")
-    public Object savePassword(@RequestParam("token") String token, Model model)
+    @GetMapping("/check-token/{token}")
+    public Object savePassword(@PathVariable("token") String token, Model model)
             throws SQLException, IOException {
 
         if (tokenUtil.isTokenExpired(token)) {
