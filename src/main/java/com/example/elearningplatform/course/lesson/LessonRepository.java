@@ -10,9 +10,16 @@ import org.springframework.data.repository.query.Param;
 
 import com.example.elearningplatform.course.comment.Comment;
 import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.lesson.note.Note;
 
 public interface LessonRepository extends JpaRepository<Lesson, Integer> {
     List<Lesson> findBySectionId(Integer sectionId);
+
+    /**************************************************************************************** */
+    @Query("""
+            SELECT l.note FROM Lesson l WHERE l.id = :lessonId
+            """)
+    Optional<Note> findLessonNote(@Param("lessonId") Integer lessonId);
 
     /**************************************************************************************** */
     @Query("""
@@ -26,4 +33,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Integer> {
             """)
     Optional<Course> findCourseByLessonId(@Param("lessonId") Integer lessonId);
     /**************************************************************************************** */
+    @Query("""
+                    SELECT l FROM Lesson l WHERE l.section.course.id = :courseId
+                    """)
+    List<Lesson> findLessonsByCourseId(@Param("courseId") Integer courseId);
 }

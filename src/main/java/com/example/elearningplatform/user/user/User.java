@@ -24,6 +24,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -46,13 +47,17 @@ public class User implements UserDetails {
     private String email;
     private String firstName;
 
+    private String paypalEmail;
+
     private String lastName;
 
     private String password;
 
     private String phoneNumber;
 
-    private byte[] profilePicture;
+    private String imageUrl;
+    
+    private String imageId;
 
     private Boolean enabled;
 
@@ -101,8 +106,12 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Course> cart = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @Builder.Default
+    private List<Course> ownedCourses = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
     @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private List<Course> instructoredCourses;
