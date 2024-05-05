@@ -20,7 +20,6 @@ import com.example.elearningplatform.course.review.Review;
 import com.example.elearningplatform.course.review.ReviewRepository;
 import com.example.elearningplatform.course.section.Section;
 import com.example.elearningplatform.course.section.SectionRepository;
-import com.example.elearningplatform.course.tag.CourseTag;
 import com.example.elearningplatform.user.lists.UserList;
 import com.example.elearningplatform.user.lists.UserListRepository;
 import com.example.elearningplatform.user.role.Role;
