@@ -35,8 +35,8 @@ public class ELearningPlatformApplication
         System.out.println("running");
         System.out.println("running");
 
-        User user = userRepository.findById(2006).orElse(null);
-        
+       
+
 
         // generateData.truncateDtabase();
         // generateData.createData();
