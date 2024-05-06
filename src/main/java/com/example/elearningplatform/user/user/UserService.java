@@ -92,11 +92,14 @@ public class UserService {
             user.setAge(updateProfileRequest.getAge());
             user.setPaypalEmail(updateProfileRequest.getPaypalEmail());
             Address address = userRepository.findAdress(tokenUtil.getUserId()).orElse(null);
+            if(address == null) 
+            address = new Address();
             address.setStreet(updateProfileRequest.getStreet());
             address.setCity(updateProfileRequest.getCity());
             address.setState(updateProfileRequest.getState());
             address.setCountry(updateProfileRequest.getCountry());
             addressRepository.save(address);
+            
             userRepository.save(user);
             return new Response(HttpStatus.OK, "Profile updated successfully", null);
 
