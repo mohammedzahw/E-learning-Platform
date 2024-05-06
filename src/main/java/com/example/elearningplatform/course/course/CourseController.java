@@ -26,9 +26,10 @@ import com.example.elearningplatform.cloudinary.CloudinaryService;
 import com.example.elearningplatform.course.course.dto.CreateCourseRequest;
 import com.example.elearningplatform.course.course.dto.UpdateCourseRequest;
 import com.example.elearningplatform.exception.CustomException;
+import com.example.elearningplatform.response.CoursesResponse;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.user.User;
+import com.example.elearningplatform.user.user.UserRepository;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
@@ -49,6 +50,8 @@ public class CourseController {
     private CourseRepository courseRepository;
     @Autowired
     private TokenUtil tokenUtil;
+    @Autowired
+    private UserRepository userRepository;
 
     /*******************************************************************************************/
     @GetMapping("/get-instructor-courses")
@@ -92,8 +95,8 @@ public class CourseController {
 
     /***************************************************************************************** */
     @GetMapping("/public/get-courses/{pageNumber}")
-    public Response getAllCourses(@PathVariable("pageNumber") Integer pageNumber) {
-        return new Response(HttpStatus.OK, "Success", courseService.getAllCourses(pageNumber));
+    public CoursesResponse getAllCourses(@PathVariable("pageNumber") Integer pageNumber) {
+        return courseService.getAllCourses(pageNumber);
     }
 
     /**
@@ -104,11 +107,7 @@ public class CourseController {
     @PostMapping("/create-course")
     public Response createCourse(@RequestBody @Valid CreateCourseRequest course, BindingResult bindingResult)
             throws IOException, InterruptedException {
-        User user = tokenUtil.getUser();
-        if (user == null || user.getPaypalEmail() == null) {
-            return new Response(HttpStatus.BAD_REQUEST, "Please Enter your paypal email", null);
 
-        }
         if (bindingResult.hasErrors()) {
             return new Response(HttpStatus.BAD_REQUEST, "Validation Error", bindingResult.getAllErrors());
         }

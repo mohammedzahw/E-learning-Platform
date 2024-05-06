@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ import com.example.elearningplatform.course.section.dto.SectionDto;
 import com.example.elearningplatform.course.tag.CourseTag;
 import com.example.elearningplatform.course.tag.CourseTagRepository;
 import com.example.elearningplatform.exception.CustomException;
+import com.example.elearningplatform.response.CoursesResponse;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.user.user.User;
@@ -78,8 +80,9 @@ public class CourseService {
         }
 
         /***************************************************************************************** */
-        public List<SearchCourseDto> getAllCourses(Integer pageNumber) {
-                List<Course> courses = courseRepository.findAllPublished(PageRequest.of(pageNumber, 8)).getContent();
+        public CoursesResponse getAllCourses(Integer pageNumber) {
+                try {
+                        Page<Course> courses = courseRepository.findAllPublished(PageRequest.of(pageNumber, 8));
 
                 List<SearchCourseDto> coursesdto = courses.stream()
                                 .map(course -> new SearchCourseDto(
@@ -88,7 +91,11 @@ public class CourseService {
                                                 courseRepository.findCourseTags(course.getId())))
                                 .toList();
                 ;
-                return coursesdto;
+                return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", courses.getTotalPages(),
+                                coursesdto);
+        } catch (Exception e) {
+                return new CoursesResponse(HttpStatus.NOT_FOUND, e.getMessage(), 0, null);
+        }
         }
 
         /****************************************************************************************/
@@ -220,8 +227,14 @@ public class CourseService {
 
                 try {
 
+
                         User user = userRepository.findById(tokenUtil.getUserId())
                                         .orElseThrow(() -> new CustomException("Please login", HttpStatus.NOT_FOUND));
+
+                        if (user.getPaypalEmail() == null) {
+                                throw new CustomException("please set the owner paypal email", HttpStatus.NOT_FOUND);
+
+                        }
 
                         HttpRequest request = HttpRequest.newBuilder()
                                         .uri(URI.create("https://api.bunny.net/videolibrary"))
@@ -258,15 +271,18 @@ public class CourseService {
                         Set<String> tags = new HashSet<>(createCourseRequest.getTags());
                         Set<CourseTag> courseTags = new HashSet<>();
 
+                        // System.out.println("course" + course);
+                        courseRepository.save(course);
                         tags.forEach(tag -> {
                                 CourseTag tage = new CourseTag();
                                 tage.setTag(tag);
                                 tage.setCourse(course);
                                 courseTags.add(tage);
+                                // courseTagRepository.save(tage);
 
                         });
+                        // courseRepository.save(course);
                         courseTagRepository.saveAll(courseTags);
-                        courseRepository.save(course);
 
                         return new Response(HttpStatus.OK, "Course created successfully",
                                         new SearchCourseDto(course,
@@ -274,7 +290,10 @@ public class CourseService {
                                                         courseRepository.findCourseCategory(course.getId()),
                                                         courseRepository.findCourseTags(course.getId())));
 
+                } catch (CustomException e) {
+                        return new Response(e.getStatus(), e.getMessage(), null);
                 } catch (Exception e) {
+
                         return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
                 }
         }
