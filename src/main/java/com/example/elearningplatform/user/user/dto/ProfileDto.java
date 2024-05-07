@@ -45,6 +45,7 @@ public class ProfileDto {
         this.registrationDate = user.getRegistrationDate();
         this.about = user.getAbout();
         this.age = user.getAge();
+        this.paypalEmail = user.getPaypalEmail();
 
         this.address = new AddressDto(user.getAddress());
 
