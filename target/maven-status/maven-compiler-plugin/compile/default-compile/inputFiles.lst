@@ -10,6 +10,7 @@ D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\section\dto\SectionDto.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\payment\coupon\CouponRepository.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\user\user\UserService.java
+D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\tag\CourseTagDto.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\user\lists\dto\UserListDto.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\user\user\dto\InstructorDto.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\user\lists\dto\CreateUserList.java
@@ -126,10 +127,12 @@ D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\payment\transaction\TransactionRepository.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\user\cart\CartController.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\section\SectionRepository.java
+D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\course\dto\AddInstructorRequest.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\reply\dto\ReplyDto.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\payment\coupon\dto\CreateRequest.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\lesson\dto\LessonVideoDto.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\payment\coupon\dto\CreateCouponRequest.java
+D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\response\CoursesResponse.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\section\dto\UpdateSectionRequest.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\review\dto\ReviewDto.java
 D:\GitHub\E-learning-Platform-render\src\main\java\com\example\elearningplatform\course\lesson\dto\UploadVideoRequest.java

@@ -153,4 +153,18 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
             """, nativeQuery = true)
     void unEnrollCourse(@Param("userId") Integer userId, @Param("courseId") Integer courseId);
     /************************************************************************* */
+    @Modifying
+    @Query(value = """
+                        INSERT INTO course_instructors (user_id, course_id)
+                        VALUES (:userId, :courseId)
+                    """, nativeQuery = true)
+    void addInstructor(@Param("userId") Integer userId, @Param("courseId") Integer courseId);
+
+    /************************************************************************ */
+    @Modifying
+    @Query(value = """
+                    DELETE FROM course_instructors
+                    WHERE user_id = :userId AND course_id = :courseId
+                        """, nativeQuery = true)
+    void deleteInstructor(@Param("userId") Integer userId, @Param("courseId") Integer courseId);
 }

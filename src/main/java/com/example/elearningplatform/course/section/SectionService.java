@@ -21,7 +21,6 @@ import com.example.elearningplatform.course.section.dto.UpdateSectionRequest;
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.user.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

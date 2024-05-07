@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.elearningplatform.cloudinary.CloudinaryService;
+import com.example.elearningplatform.course.course.dto.AddInstructorRequest;
 import com.example.elearningplatform.course.course.dto.CreateCourseRequest;
 import com.example.elearningplatform.course.course.dto.UpdateCourseRequest;
 import com.example.elearningplatform.exception.CustomException;
@@ -202,5 +203,20 @@ public class CourseController {
     public Response publishCourse(@PathVariable("id") Integer id) throws SQLException {
         return courseService.publishCourse(id);
     }
+
     /******************************************************************************************** */
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/add-instructor")
+    public Response addInstructor(@RequestBody AddInstructorRequest request) {
+
+        return courseService.addInstructor(request);
+    }
+
+    /******************************************************************************************** */
+    @SecurityRequirement(name = "bearerAuth")
+    @PostMapping("/delete-instructor")
+    public Response deleteInstructor(@RequestBody AddInstructorRequest request) {
+
+        return courseService.deleteInstructor(request);
+    }
 }

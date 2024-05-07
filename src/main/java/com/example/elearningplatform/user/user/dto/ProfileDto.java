@@ -22,6 +22,7 @@ public class ProfileDto {
     private String paypalEmail;
     private String phoneNumber;
 
+
     private Boolean enabled;
 
     private LocalDateTime registrationDate;

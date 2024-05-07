@@ -106,14 +106,14 @@ public class User implements UserDetails {
     @Builder.Default
     private List<Course> cart = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "owner")
     @ToString.Exclude
     @Builder.Default
     private List<Course> ownedCourses = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JoinTable(name = "instructed_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+    @JoinTable(name = "course_instructors", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
     private List<Course> instructoredCourses;
 
     

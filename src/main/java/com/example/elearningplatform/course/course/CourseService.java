@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.category.Category;
 import com.example.elearningplatform.course.category.CategoryRepository;
+import com.example.elearningplatform.course.course.dto.AddInstructorRequest;
 import com.example.elearningplatform.course.course.dto.CourseDto;
 import com.example.elearningplatform.course.course.dto.CreateCourseRequest;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
@@ -394,6 +395,8 @@ public class CourseService {
                 }
         }
 
+        /***************************************************************************************************************/
+
         public Response publishCourse(Integer id) {
                 try {
                         Course course = courseRepository.findById(id)
@@ -416,6 +419,8 @@ public class CourseService {
 
         }
 
+        /***************************************************************************************************************/
+
         public List<SearchCourseDto> getInstructedCourses() {
 
                 List<Course> courses = courseRepository.findByOwnerId(tokenUtil.getUserId());
@@ -428,6 +433,52 @@ public class CourseService {
 
                 return coursesdto;
 
+        }
+
+        /***************************************************************************************************************/
+
+        public Response addInstructor(AddInstructorRequest request) {
+                try {
+                        User user = userRepository.findByEmail(request.getInstructorEmail())
+                                        .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+                        Course course = courseRepository.findById(request.getCourseId())
+                                        .orElseThrow(() -> new CustomException("Course not found",
+                                                        HttpStatus.NOT_FOUND));
+                        if (!course.getOwner().getId().equals(tokenUtil.getUserId()))
+                                throw new CustomException("You are not the owner of this course",
+                                                HttpStatus.UNAUTHORIZED);
+
+                        courseRepository.addInstructor(user.getId(), request.getCourseId());
+
+                        return new Response(HttpStatus.OK, "Instructor added successfully", null);
+                } catch (CustomException e) {
+                        return new Response(e.getStatus(), e.getMessage(), null);
+                } catch (Exception e) {
+                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+                }
+        }
+
+        /***************************************************************************************************************/
+
+        public Response deleteInstructor(AddInstructorRequest request) {
+                try {
+                        User user = userRepository.findByEmail(request.getInstructorEmail())
+                                        .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+                        Course course = courseRepository.findById(request.getCourseId())
+                                        .orElseThrow(() -> new CustomException("Course not found",
+                                                        HttpStatus.NOT_FOUND));
+                        if (!course.getOwner().getId().equals(tokenUtil.getUserId()))
+                                throw new CustomException("You are not the owner of this course",
+                                                HttpStatus.UNAUTHORIZED);
+
+                        courseRepository.deleteInstructor(user.getId(), request.getCourseId());
+
+                        return new Response(HttpStatus.OK, "Instructor deleted successfully", null);
+                } catch (CustomException e) {
+                        return new Response(e.getStatus(), e.getMessage(), null);
+                } catch (Exception e) {
+                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+                }
         }
 }
 /***************************************************************************************************************/

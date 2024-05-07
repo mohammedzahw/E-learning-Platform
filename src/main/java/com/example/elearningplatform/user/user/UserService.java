@@ -140,5 +140,11 @@ public class UserService {
         }
     }
 
+
+    // public Response getOwnedCourse() {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'getOwnedCourse'");
+    // }
+
     
 }

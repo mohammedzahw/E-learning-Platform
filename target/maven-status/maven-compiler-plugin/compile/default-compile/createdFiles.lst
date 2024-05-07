@@ -11,6 +11,7 @@ com\example\elearningplatform\course\comment\dto\CreateCommentRequest.class
 com\example\elearningplatform\user\lists\UserListRepository.class
 com\example\elearningplatform\exception\CustomException.class
 com\example\elearningplatform\response\Response.class
+com\example\elearningplatform\course\course\dto\AddInstructorRequest.class
 com\example\elearningplatform\course\lesson\LessonRepository.class
 com\example\elearningplatform\course\section\SectionController.class
 com\example\elearningplatform\resetpassword\ResetPasswordController.class
@@ -76,7 +77,6 @@ com\example\elearningplatform\course\lesson\dto\UpdateLessonRequest.class
 com\example\elearningplatform\course\tag\CourseTagRepository.class
 com\example\elearningplatform\course\comment\CommentService.class
 com\example\elearningplatform\security\OpenApiConfig.class
-com\example\elearningplatform\payment\transaction\TransactionController.class
 com\example\elearningplatform\payment\transaction\TransactionRepository.class
 com\example\elearningplatform\course\lesson\note\NoteRepository.class
 com\example\elearningplatform\course\reply\ReplyService.class
@@ -85,6 +85,7 @@ com\example\elearningplatform\user\wishlist\WishListRepository.class
 com\example\elearningplatform\course\reply\ReplyController.class
 com\example\elearningplatform\course\lesson\note\Note.class
 com\example\elearningplatform\course\reply\ReplyRepository.class
+com\example\elearningplatform\course\tag\CourseTagDto.class
 com\example\elearningplatform\course\comment\Comment.class
 com\example\elearningplatform\course\comment\dto\CommentDto.class
 com\example\elearningplatform\course\lesson\LessonService$1.class
@@ -120,6 +121,7 @@ com\example\elearningplatform\user\user\User$UserBuilder.class
 com\example\elearningplatform\course\course\Course.class
 com\example\elearningplatform\course\review\dto\UpdateReviewRequest.class
 com\example\elearningplatform\course\section\SectionService.class
+com\example\elearningplatform\response\CoursesResponse.class
 com\example\elearningplatform\login\LoginService.class
 com\example\elearningplatform\GenerateData.class
 com\example\elearningplatform\signup\SignUpController.class
