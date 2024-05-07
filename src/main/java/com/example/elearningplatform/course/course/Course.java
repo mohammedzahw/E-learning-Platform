@@ -58,7 +58,7 @@ public class Course {
 
         private String level;
         
-        private Boolean isPreviewd;
+        // private Boolean isPreviewd;
 
         private Double price;
 
