@@ -53,7 +53,7 @@ public class SearchCourseDto {
         this.language = course.getLanguage();
         this.level = course.getLevel();
         this.numberOfRatings = course.getNumberOfRatings();
-        this.imageUrl = "https://via.placeholder.com/300x150";
+        this.imageUrl = course.getImageUrl();
         if (course.getTotalRatings() == 0)
             this.averageRating = 0.0;
         else if (course.getNumberOfRatings() != null && course.getTotalRatings() != null

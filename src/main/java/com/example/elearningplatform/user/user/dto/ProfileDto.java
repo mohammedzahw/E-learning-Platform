@@ -38,7 +38,7 @@ public class ProfileDto {
         this.email = user.getEmail();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
-        this.imageUrl = "https://via.placeholder.com/300x150";
+        this.imageUrl = user.getImageUrl();
         this.phoneNumber = user.getPhoneNumber();
         this.enabled = user.isEnabled();
         this.registrationDate = user.getRegistrationDate();
