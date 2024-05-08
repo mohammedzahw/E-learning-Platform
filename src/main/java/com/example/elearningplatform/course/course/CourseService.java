@@ -164,6 +164,8 @@ public class CourseService {
         /**************************************************************************************** */
         public Response getCourse(Integer courseId) {
                 try {
+                        System.out.println("courseId = " + courseId);
+                        System.out.println("tokenUtil.getUserId() = " + tokenUtil.getUserId());
                         Course course = courseRepository.findByCourseId(courseId)
                                         .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
                         CourseDto courseDto = new CourseDto(

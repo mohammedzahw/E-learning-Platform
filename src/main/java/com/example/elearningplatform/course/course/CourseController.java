@@ -29,8 +29,6 @@ import com.example.elearningplatform.course.course.dto.UpdateCourseRequest;
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.CoursesResponse;
 import com.example.elearningplatform.response.Response;
-import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.user.UserRepository;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.transaction.Transactional;
@@ -49,10 +47,7 @@ public class CourseController {
     private CloudinaryService cloudinaryService;
     @Autowired
     private CourseRepository courseRepository;
-    @Autowired
-    private TokenUtil tokenUtil;
-    @Autowired
-    private UserRepository userRepository;
+
 
     /*******************************************************************************************/
     @GetMapping("/get-instructor-courses")
@@ -88,7 +83,7 @@ public class CourseController {
     /*******************************************************************************************/
 
     @GetMapping("/public/get-course/{id}")
-
+    @SecurityRequirement(name = "bearerAuth")
     public Response getCourse(@PathVariable("id") Integer id)
             throws SQLException {
         return new Response(HttpStatus.OK, "Success", courseService.getCourse(id));

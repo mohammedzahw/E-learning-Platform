@@ -20,7 +20,6 @@ import com.example.elearningplatform.course.section.dto.SectionDto;
 import com.example.elearningplatform.course.section.dto.UpdateSectionRequest;
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
-import com.example.elearningplatform.security.TokenUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -39,8 +38,7 @@ public class SectionService {
     private CourseRepository courseRepository;
     @Autowired
     CourseService courseService;
-    @Autowired
-    private TokenUtil tokenUtil;
+
 
     /************************************************************************************** */
     /************************************************************************************** */

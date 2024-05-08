@@ -18,7 +18,6 @@ import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.paypal.api.payments.Amount;
 import com.paypal.api.payments.Payer;
-import com.paypal.api.payments.PayerInfo;
 import com.paypal.api.payments.Payment;
 import com.paypal.api.payments.PaymentExecution;
 import com.paypal.api.payments.RedirectUrls;

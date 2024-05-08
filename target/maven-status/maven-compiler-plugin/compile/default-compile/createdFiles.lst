@@ -88,7 +88,6 @@ com\example\elearningplatform\course\reply\ReplyRepository.class
 com\example\elearningplatform\course\tag\CourseTagDto.class
 com\example\elearningplatform\course\comment\Comment.class
 com\example\elearningplatform\course\comment\dto\CommentDto.class
-com\example\elearningplatform\course\lesson\LessonService$1.class
 com\example\elearningplatform\course\lesson\note\dto\NoteDto.class
 com\example\elearningplatform\course\review\dto\CreateReviewRequest.class
 com\example\elearningplatform\payment\paypal\PaypalController.class
@@ -110,7 +109,6 @@ com\example\elearningplatform\payment\coupon\CouponService.class
 com\example\elearningplatform\payment\paypal\payout\PayoutService.class
 com\example\elearningplatform\course\course\CourseRepository.class
 com\example\elearningplatform\resetpassword\ChangePasswordRequest.class
-com\example\elearningplatform\course\lesson\LessonService$2.class
 com\example\elearningplatform\payment\paypal\PaypalConfig.class
 com\example\elearningplatform\payment\paypal\payout\dto\RefundRequest.class
 com\example\elearningplatform\ELearningPlatformApplication.class

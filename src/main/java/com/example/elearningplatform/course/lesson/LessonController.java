@@ -54,7 +54,7 @@ public class LessonController {
     public Response uploadVideo(UploadVideoRequest uploadVideoRequest)
             throws IOException, InterruptedException {
 
-        return lessonService.uploadLessonVideo(uploadVideoRequest);
+        return lessonService.uploadVideo(uploadVideoRequest);
     }
 
     /***************************************************************************************/
