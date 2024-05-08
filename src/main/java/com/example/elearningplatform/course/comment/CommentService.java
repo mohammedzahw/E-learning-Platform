@@ -173,12 +173,12 @@ public class CommentService {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }
-    @Transactional
+    
     public void checkCommentAuth(Integer lessonId) throws Exception {
 
         Course course = lessonRepository.findCourseByLessonId(lessonId)
                 .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
         if (courseService.ckeckCourseSubscribe(course.getId()).equals(false))
-            throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            throw new CustomException("Unauthorized", HttpStatus.BAD_REQUEST);
     }
 }

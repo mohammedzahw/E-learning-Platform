@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.elearningplatform.course.comment.CommentService;
-import com.example.elearningplatform.course.comment.dto.CommentDto;
 import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.course.course.CourseService;
@@ -25,9 +23,7 @@ import com.example.elearningplatform.course.lesson.dto.LessonDto;
 import com.example.elearningplatform.course.lesson.dto.LessonVideoDto;
 import com.example.elearningplatform.course.lesson.dto.UpdateLessonRequest;
 import com.example.elearningplatform.course.lesson.dto.UploadVideoRequest;
-import com.example.elearningplatform.course.lesson.note.Note;
 import com.example.elearningplatform.course.lesson.note.NoteRepository;
-import com.example.elearningplatform.course.lesson.note.dto.NoteDto;
 import com.example.elearningplatform.course.section.Section;
 import com.example.elearningplatform.course.section.SectionRepository;
 import com.example.elearningplatform.exception.CustomException;
@@ -57,17 +53,22 @@ public class LessonService {
     private NoteRepository noteRepository;
 
     /*****************************************************************************************************/
-    public Response getLesson(Integer lessonId, Integer pageNumber) {
-        try {
-            commentService.checkCommentAuth(lessonId);
-            Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(() -> new CustomException("Lesson not found", HttpStatus.NOT_FOUND));
-            List<CommentDto> comments = commentService.getCommentsByLessonId(lessonId, pageNumber);
-            Note note = noteRepository.findByLessonId(lessonId)
-                            .orElse(null);
+    public Response getLesson(Integer lessonId) {
+            try {
+                    Lesson lesson = lessonRepository.findById(lessonId)
+                                    .orElseThrow(() -> new CustomException("Lesson not found", HttpStatus.NOT_FOUND));
+                    Course course = lessonRepository.findCourseByLessonId(lessonId)
+                                    .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
+                    if (lesson.getFree().equals(false))
+                    {
+                       
+                            if(courseService.ckeckCourseSubscribe(course.getId()).equals(false))
+                                    throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
+                    }
+               
             LessonVideoDto lessonVideo = new LessonVideoDto();
             lessonVideo.setVideoUrl(lesson.getVideoUrl());
-            lessonVideo.setNotes(new NoteDto(note));
-            lessonVideo.setComments(comments);
+       
 
             return new Response(HttpStatus.OK, "Success", lessonVideo);
         } 

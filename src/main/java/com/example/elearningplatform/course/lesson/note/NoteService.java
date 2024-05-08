@@ -33,17 +33,17 @@ public class NoteService {
     @Autowired
     private CourseService courseService;
 
-    /************************************************************************************************/
-    public Response getNotes() {
-        try {
+    // /************************************************************************************************/
+    // public Response getNotes() {
+    //     try {
 
-            return new Response(HttpStatus.OK, "Note created successfully", null);
+    //         return new Response(HttpStatus.OK, "Note created successfully", null);
 
-        } catch (Exception e) {
-            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
-        }
+    //     } catch (Exception e) {
+    //         return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+    //     }
 
-    }
+    // }
 
     /************************************************************************************************/
     public Response createNote(CreateNoteRequest request) {

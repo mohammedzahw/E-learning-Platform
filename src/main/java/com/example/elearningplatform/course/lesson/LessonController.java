@@ -32,9 +32,9 @@ public class LessonController {
     /*************************************************************************************** */
 
     @GetMapping("/get-lesson")
-    public Response getLesson(@RequestParam("lessonId") Integer lessonId,
-            @RequestParam("pageNumber") Integer pageNumber) {
-        return lessonService.getLesson(lessonId, pageNumber);
+    public Response getLesson(@RequestParam("lessonId") Integer lessonId
+           ) {
+        return lessonService.getLesson(lessonId);
     }
 
     /*********************************************************************************************/
