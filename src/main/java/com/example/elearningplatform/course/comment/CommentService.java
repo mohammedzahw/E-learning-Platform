@@ -48,8 +48,6 @@ public class CommentService {
         try {
             Lesson lesson = lessonRepository.findById(createComment.getLessonId())
                     .orElseThrow(() -> new CustomException("Lesson not found", HttpStatus.NOT_FOUND));
-            lesson.incrementNumberOfComments();
-            lessonRepository.save(lesson);
 
             User user = userRepository.findById(tokenUtil.getUserId())
                     .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
@@ -78,10 +76,6 @@ public class CommentService {
                 throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
             }
 
-            Lesson lesson = commentRepository.findLesson(commentId)
-                    .orElseThrow(() -> new CustomException("Lesson not found", HttpStatus.NOT_FOUND));
-            lesson.decrementNumberOfComments();
-            lessonRepository.save(lesson);
             commentRepository.delete(comment);
 
             return new Response(HttpStatus.OK, "Comment deleted successfully", null);

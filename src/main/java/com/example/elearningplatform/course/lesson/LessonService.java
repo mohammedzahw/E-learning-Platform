@@ -110,7 +110,7 @@ public class LessonService {
                                                     guid));
                     lessonRepository.save(lesson);
 
-                    return new Response(HttpStatus.CREATED, "Video created successfully", new LessonDto());
+                    return new Response(HttpStatus.CREATED, "Video created successfully", new LessonDto(lesson));
             } catch (CustomException e) {
                     return new Response(e.getStatus(), e.getMessage(), null);
             } catch (Exception e) {

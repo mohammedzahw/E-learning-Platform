@@ -99,7 +99,6 @@ public class GenerateData {
             Section section = new Section();
             section.setTitle("Section " + i);
             section.setDescription("Description " + i);
-            section.setDuration(BigDecimal.valueOf(i));
             sectionRepository.save(section);
         }
         for (int i = 1; i <= 5; i++) {

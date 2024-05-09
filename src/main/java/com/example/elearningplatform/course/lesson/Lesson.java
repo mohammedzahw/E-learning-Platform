@@ -33,7 +33,6 @@ public class Lesson {
     private Integer id;
     private String guid;
     private String videoUrl;
-    private Integer numberOfComments = 0;
     private String title;
     private String description;
     private String type;
@@ -55,13 +54,6 @@ public class Lesson {
     @ToString.Exclude
     private List<Note> notes;
 
-    public void incrementNumberOfComments() {
-        this.numberOfComments++;
-    }
-
-    public void decrementNumberOfComments() {
-        this.numberOfComments--;
-    }
 
     public Lesson(CreateLessonRequest createLessonRequest) {
         this.title = createLessonRequest.getTitle();
