@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -81,7 +82,10 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JoinTable(name = "user_enrolled_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+    @JoinTable(name = "user_enrolled_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
+            "user_id", "course_id" })
+
+    )
     @Builder.Default
     private List<Course> enrolledCourses = new ArrayList<>();
 
@@ -113,7 +117,9 @@ public class User implements UserDetails {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude
-    @JoinTable(name = "course_instructors", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
+    @JoinTable(name = "course_instructors", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id")
+
+    )
     private List<Course> instructoredCourses;
 
     

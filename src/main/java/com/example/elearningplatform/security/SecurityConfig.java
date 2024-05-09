@@ -79,15 +79,13 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
-                        "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html","/paypal/**",
-                        "/payment/**",
+                        "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                         "/oauth2/**","/category/all/**","/user/get-all-users",
                     "/user/get-user/**", "/check-token/**", "/verifyEmail/**", "/signup/**", "/login/**",
                         "/forget-password/**", "/course/public/**",
                         "/review/get-reviews/**")
                 .permitAll()
                 .anyRequest().hasAnyRole("USER", "ADMIN", "INSTRUCTOR")
-               
         ).addFilterAfter(authFilter(), UsernamePasswordAuthenticationFilter.class);
 
         http.exceptionHandling(exceptionHandling -> exceptionHandling

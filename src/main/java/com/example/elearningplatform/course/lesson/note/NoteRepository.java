@@ -18,8 +18,11 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
                         """)
         Optional<Lesson> findLesson(@Param("id") Integer id);
 
-        Optional<Note> findByLessonId(Integer id);
+        /********************************************************************************************/
 
+        Optional<Note> findByLessonIdAndUserId(Integer lessonId, Integer userId);
+
+        /********************************************************************************************/
         @Modifying
         @Query("""
                         DELETE FROM Note n
@@ -27,3 +30,4 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
                         """)
         void deleteNoteByLessonIdAndUserId(@Param("lessonId") Integer lessonId, @Param("userId") Integer userId);
 }
+        /********************************************************************************************/

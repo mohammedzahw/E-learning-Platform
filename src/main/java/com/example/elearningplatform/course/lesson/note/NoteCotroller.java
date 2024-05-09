@@ -31,7 +31,7 @@ public class NoteCotroller {
     public Response getNotes(@RequestParam("lessonId") Integer lessonId,
             @PathVariable("pageNumber") Integer pageNumber) throws Exception {
 
-        return new Response(HttpStatus.OK, "Success", NoteService.getNotesByLessonId(lessonId));
+        return new Response(HttpStatus.OK, "Success", NoteService.getLessonNote(lessonId));
 
     }
 

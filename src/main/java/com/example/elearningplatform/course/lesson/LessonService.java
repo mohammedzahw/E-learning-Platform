@@ -105,7 +105,7 @@ public class LessonService {
                     lesson.setSection(section);
                     lesson.setVideoUrl(
                                     String.format(
-                                                    "https://iframe.mediadelivery.net/play/%s/%s",
+                                                    "https://iframe.mediadelivery.net/embed/%s/%s",
                                                     course.getGuid(),
                                                     guid));
                     lessonRepository.save(lesson);
@@ -252,7 +252,7 @@ public class LessonService {
                     lesson.setGuid(guid);
                     lesson.setVideoUrl(
                                     String.format(
-                                                    "https://iframe.mediadelivery.net/play/%s/%s",
+                                                    "https://iframe.mediadelivery.net/embed/%s/%s",
                                                     course.getGuid(),
                                                     guid));
                     lessonRepository.save(lesson);

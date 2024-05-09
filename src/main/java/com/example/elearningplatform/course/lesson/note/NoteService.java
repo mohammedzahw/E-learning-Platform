@@ -108,12 +108,11 @@ public class NoteService {
 
     /************************************************************************************************/
 
-    public Response getNotesByLessonId(Integer lessonId) {
+    public Response getLessonNote(Integer lessonId) {
         try {
             checkNoteAuth(lessonId);
 
-            Note note = noteRepository.findByLessonId(lessonId).orElseThrow(
-                    () -> new CustomException("Note not found", HttpStatus.NOT_FOUND));
+            Note note = noteRepository.findByLessonIdAndUserId(lessonId, tokenUtil.getUserId()).orElse(null);
 
             return new Response(HttpStatus.OK, "Note created successfully", new NoteDto(note));
         } catch (CustomException e) {

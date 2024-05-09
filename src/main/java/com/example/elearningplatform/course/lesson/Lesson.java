@@ -17,7 +17,6 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,9 +51,9 @@ public class Lesson {
     @ToString.Exclude
     private List<Comment> comments;
 
-    @OneToOne(fetch = jakarta.persistence.FetchType.LAZY,cascade = CascadeType.REMOVE)
+    @OneToMany(fetch = jakarta.persistence.FetchType.LAZY, mappedBy = "lesson", cascade = CascadeType.REMOVE)
     @ToString.Exclude
-    private Note note;
+    private List<Note> notes;
 
     public void incrementNumberOfComments() {
         this.numberOfComments++;
