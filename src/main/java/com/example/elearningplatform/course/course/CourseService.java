@@ -201,10 +201,10 @@ public class CourseService {
         /**************************************************************************************** */
 
         public Boolean ckeckCourseSubscribe(Integer courseId) {
-                Integer userId = tokenUtil.getUserId();
-                if (userId == null)
-                        return false;
-                return courseRepository.findEnrolledCourseByUserIdAndCourseId(userId, courseId).isPresent();
+
+                        Integer userId = tokenUtil.getUserId();
+                        
+                        return courseRepository.findEnrolledCourseByUserIdAndCourseId(userId, courseId).isPresent();
         }
 
         /**************************************************************************************** */

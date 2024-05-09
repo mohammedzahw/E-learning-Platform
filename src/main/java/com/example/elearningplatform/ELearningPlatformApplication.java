@@ -28,7 +28,6 @@ public class ELearningPlatformApplication
         System.out.println("running");
         System.out.println("running");
         System.out.println("running");
-        // courseRepository.enrollCourse(2002, 1802);
        
 
         // generateData.truncateDtabase();
