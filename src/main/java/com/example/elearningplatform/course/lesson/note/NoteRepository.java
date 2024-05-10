@@ -1,5 +1,6 @@
 package com.example.elearningplatform.course.lesson.note;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,7 +24,7 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
                 SELECT n FROM Note n
                 WHERE n.user.id= :userId And n.lesson.id = :lessonId
                 """)
-        Optional<Note> findByLessonIdAndUserId(Integer lessonId, Integer userId);
+        List<Note> findByLessonIdAndUserId(Integer lessonId, Integer userId);
 
         /********************************************************************************************/
         @Modifying

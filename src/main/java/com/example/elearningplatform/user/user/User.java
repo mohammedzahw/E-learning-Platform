@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.elearningplatform.course.course.Course;
+import com.example.elearningplatform.course.lesson.note.Note;
 import com.example.elearningplatform.user.address.Address;
 import com.example.elearningplatform.user.role.Role;
 
@@ -79,6 +80,10 @@ public class User implements UserDetails {
   @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @ToString.Exclude
+    @Builder.Default
+    private List<Note> notes = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @ToString.Exclude

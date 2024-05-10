@@ -16,7 +16,6 @@ import lombok.ToString;
 
 @Data
 @Entity
-@Table(name = "note", uniqueConstraints = @UniqueConstraint(columnNames = { "lesson_id", "user_id" }))
 public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
