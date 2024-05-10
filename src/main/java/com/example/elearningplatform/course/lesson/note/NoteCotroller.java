@@ -30,7 +30,7 @@ public class NoteCotroller {
     @GetMapping("/get-Notes")
     public Response getNotes(@RequestParam("lessonId") Integer lessonId) throws Exception {
 
-        return new Response(HttpStatus.OK, "Success", NoteService.getLessonNote(lessonId));
+        return  NoteService.getLessonNote(lessonId);
 
     }
 
