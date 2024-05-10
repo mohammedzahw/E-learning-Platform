@@ -19,7 +19,10 @@ public interface NoteRepository extends JpaRepository<Note, Integer> {
         Optional<Lesson> findLesson(@Param("id") Integer id);
 
         /********************************************************************************************/
-
+        @Query("""
+                SELECT n FROM Note n
+                WHERE n.user.id= :userId And n.lesson.id = :lessonId
+                """)
         Optional<Note> findByLessonIdAndUserId(Integer lessonId, Integer userId);
 
         /********************************************************************************************/

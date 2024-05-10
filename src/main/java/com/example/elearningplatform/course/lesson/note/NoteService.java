@@ -50,7 +50,9 @@ public class NoteService {
         try {
             Lesson lesson = lessonRepository.findById(request.getLessonId())
                     .orElseThrow(() -> new CustomException("Lesson not found", HttpStatus.NOT_FOUND));
-            checkNoteAuth(lesson.getId());
+            if (checkNoteAuth(lesson.getId()).equals(false)) {
+                throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
 
             User user = userRepository.findById(tokenUtil.getUserId())
                     .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
@@ -62,7 +64,10 @@ public class NoteService {
 
             return new Response(HttpStatus.OK, "Note created successfully", new NoteDto(note));
 
-        } catch (Exception e) {
+        } catch (CustomException e) {
+            return new Response(e.getStatus(), e.getMessage(), null);
+        }
+        catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
     }
@@ -110,24 +115,33 @@ public class NoteService {
 
     public Response getLessonNote(Integer lessonId) {
         try {
-            checkNoteAuth(lessonId);
+
+            if (checkNoteAuth(lessonId).equals(false)) {
+                throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
 
             Note note = noteRepository.findByLessonIdAndUserId(lessonId, tokenUtil.getUserId()).orElse(null);
 
-            return new Response(HttpStatus.OK, "Note created successfully", new NoteDto(note));
+            return new Response(HttpStatus.OK, "Note fetched successfully", new NoteDto(note));
         } catch (CustomException e) {
             return new Response(e.getStatus(), e.getMessage(), null);
-        } catch (Exception e) {
+        }
+
+        catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
         }
 
     }
 
-    private void checkNoteAuth(Integer lessonId) {
+    private Boolean checkNoteAuth(Integer lessonId) {
+        try {
         Course course = lessonRepository.findCourseByLessonId(lessonId)
                 .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
-        if (courseService.ckeckCourseSubscribe(course.getId()).equals(false))
-            throw new CustomException("Unauthorized", HttpStatus.UNAUTHORIZED);
+        return courseService.ckeckCourseSubscribe(course.getId());
+
+    } catch (Exception e) {
+        return false;
+    }
     }
 
 }
