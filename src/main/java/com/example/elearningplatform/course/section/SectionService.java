@@ -136,7 +136,7 @@ public class SectionService {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request,
                     HttpResponse.BodyHandlers.ofString());
 
-            System.out.println(response.body());
+            // System.out.println(response.body());
             if (response.statusCode() == 200)
                 sectionRepository.delete(section);
 

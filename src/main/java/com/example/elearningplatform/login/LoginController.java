@@ -82,7 +82,7 @@ public class LoginController implements ErrorController {
     @GetMapping("/login/oauth2/success")
     public Response loginOuth2(@AuthenticationPrincipal OAuth2User oAuth2User)
             throws SerialException, IOException, SQLException {
-        System.out.println("mohamed");
+        // System.out.println("mohamed");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // System.out.println(authentication);

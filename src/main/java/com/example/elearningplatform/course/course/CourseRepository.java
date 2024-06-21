@@ -68,19 +68,19 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     /******************************************************************************************* */
     @Query("""
             SELECT c FROM Course c
-            JOIN FETCH c.instructors i
+            JOIN c.instructors i
             WHERE
             (
             lower(c.title) LIKE lower(concat('%', :searchKy, '%'))
-            OR lower(i.firstName) LIKE lower(concat('%', :searchKy, '%')) 
+            OR lower(i.firstName) LIKE lower(concat('%', :searchKy, '%'))
             OR lower(i.lastName) LIKE lower(concat('%', :searchKy, '%'))
             )
-            And c.isPublished = true
+            AND c.isPublished = true
             """)
     Page<Course> findBySearchKey(@Param("searchKy") String searchKy, Pageable pageable);
 
     /******************************************************************************************* */
-
+   
     @Query("""
                             SELECT c FROM Course c
                         JOIN FETCH c.categories cat WHERE cat.id = :categoryId and c.isPublished = true

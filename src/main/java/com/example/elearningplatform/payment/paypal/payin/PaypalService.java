@@ -106,7 +106,7 @@ public class PaypalService {
             tempTransactionUser.setCurrency("USD");
             tempTransactionUser.setPaymentMethod("paypal");
             tempTransactionUserRepository.save(tempTransactionUser);
-            System.out.println("Created Payment ID: " + payment.toString());
+            // System.out.println("Created Payment ID: " + payment.toString());
             return payment;
       }
 /********************************************** PayPal Payment Execution ************************************************/
@@ -120,8 +120,8 @@ public class PaypalService {
 
             PaymentExecution paymentExecution = new PaymentExecution();
             paymentExecution.setPayerId(payerId);
-            System.out.println(payment.toString());
-            System.out.println(paymentExecution.toString());
+            // System.out.println(payment.toString());
+            // System.out.println(paymentExecution.toString());
 
             return payment.execute(apiContext, paymentExecution);
       }

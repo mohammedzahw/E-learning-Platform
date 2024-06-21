@@ -58,23 +58,23 @@ public class CourseController {
 
     /*******************************************************************************************/
     @GetMapping("/public/search/{searchKey}/{pageNumber}")
-    public Response searchCourse(@PathVariable("searchKey") String searchKey,
+    public CoursesResponse searchCourse(@PathVariable("searchKey") String searchKey,
             @PathVariable("pageNumber") Integer pageNumber) throws SQLException {
 
-        return new Response(HttpStatus.OK, "Success", courseService.findBysearchkey(searchKey, pageNumber));
+        return courseService.findBysearchkey(searchKey, pageNumber);
     }
 
 
     /*******************************************************************************************/
     @GetMapping("/public/get-by-category/{categoryId}/{pageNumber}")
-    public Response searchCourseWithCategory(@PathVariable("categoryId") Integer categoryId,
+    public CoursesResponse searchCourseWithCategory(@PathVariable("categoryId") Integer categoryId,
             @PathVariable("pageNumber") Integer pageNumber) throws SQLException {
         return courseService.getCoursesByCategoryId(categoryId, pageNumber);
     }
 
     /*******************************************************************************************/
     @GetMapping("/public/get-by-tag/{tagId}/{pageNumber}")
-    public Response searchCourseWithTag(@PathVariable("tagId") Integer tagId,
+    public CoursesResponse searchCourseWithTag(@PathVariable("tagId") Integer tagId,
             @PathVariable("pageNumber") Integer pageNumber)
             throws SQLException {
         return courseService.getCoursesByTagId(tagId, pageNumber);

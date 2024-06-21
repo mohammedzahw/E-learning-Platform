@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,19 +63,21 @@ public class CourseService {
         private String ApiKey;
 
         /***************************************************************************************** */
-        public Response getCoursesByCategoryId(Integer categoryId, Integer pageNumber) {
+        public CoursesResponse getCoursesByCategoryId(Integer categoryId, Integer pageNumber) {
                 try {
-                        List<SearchCourseDto> courses = courseRepository
-                                        .findByCategoryId(categoryId, PageRequest.of(pageNumber, 8))
+                        Page<Course> courses = courseRepository.findByCategoryId(categoryId,
+                                        PageRequest.of(pageNumber, 8));
+                        List<SearchCourseDto> coursesDto = courses
                                         .stream()
                                         .map(course -> new SearchCourseDto(
                                                         course, courseRepository.findCourseInstructors(course.getId()),
                                                         courseRepository.findCourseCategory(course.getId()),
                                                         courseRepository.findCourseTags(course.getId())))
                                         .toList();
-                        return new Response(HttpStatus.OK, "Courses fetched successfully", courses);
+                        return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully",
+                                        courses.getTotalPages(), coursesDto);
                 } catch (Exception e) {
-                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+                        return new CoursesResponse(HttpStatus.NOT_FOUND, e.getMessage(), 0, null);
                 }
         }
 
@@ -100,72 +101,78 @@ public class CourseService {
         }
 
         /****************************************************************************************/
-        public List<SearchCourseDto> findByCategory(Integer categoryId, Integer pageNumber) {
+        public CoursesResponse findByCategory(Integer categoryId, Integer pageNumber) {
 
-                Pageable pageable = PageRequest.of(pageNumber, 8);
+              
+                Page<Course> courses = courseRepository.findByCategoryId(categoryId, PageRequest.of(pageNumber, 8));
 
-                List<SearchCourseDto> courses = courseRepository.findByCategoryId(categoryId, pageable).stream()
+                List<SearchCourseDto> coursesDto = courses.stream()
                                 .map(course -> new SearchCourseDto(
                                                 course, courseRepository.findCourseInstructors(course.getId()),
                                                 courseRepository.findCourseCategory(course.getId()),
                                                 courseRepository.findCourseTags(course.getId())))
                                 .toList();
-                return courses;
+                return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", courses.getTotalPages(),
+                                coursesDto);
         }
 
         /****************************************************************************************/
-        public List<SearchCourseDto> findBysearchkey(String searchKey, Integer pageNumber) {
+        public CoursesResponse findBysearchkey(String searchKey, Integer pageNumber) {
                 if (searchKey == null) {
-                        return new ArrayList<>();
+                        return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", 0, null);
                 }
-
-                Pageable pageable = PageRequest.of(pageNumber, 8);
-
-                List<SearchCourseDto> courses = courseRepository.findBySearchKey(searchKey, pageable).stream()
+              
+                
+                Page<Course> courses = courseRepository.findBySearchKey(searchKey, PageRequest.of(pageNumber, 20));
+                List<SearchCourseDto> coursesDto = courses.stream()
                                 .map(course -> new SearchCourseDto(
                                                 course, courseRepository.findCourseInstructors(course.getId()),
                                                 courseRepository.findCourseCategory(course.getId()),
                                                 courseRepository.findCourseTags(course.getId())))
                                 .toList();
 
-                return courses;
+                return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", courses.getTotalPages(),
+                                coursesDto);
 
         }
 
         /****************************************************************************************/
-        public List<SearchCourseDto> findByTitle(String title, Integer pageNumber) {
+        public CoursesResponse findByTitle(String title, Integer pageNumber) {
 
-                Pageable pageable = PageRequest.of(pageNumber, 8);
+                Page<Course> courses = courseRepository.findByTitle(title, PageRequest.of(pageNumber, 8));
 
-                List<SearchCourseDto> courses = courseRepository.findByTitle(title, pageable).stream()
+                List<SearchCourseDto> coursesDto = courses.stream()
                                 .map(course -> new SearchCourseDto(
                                                 course, courseRepository.findCourseInstructors(course.getId()),
                                                 courseRepository.findCourseCategory(course.getId()),
                                                 courseRepository.findCourseTags(course.getId())))
                                 .toList();
 
-                return courses;
+                return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", courses.getTotalPages(),
+                                coursesDto);
         }
 
         /**************************************************************************************** */
-        public List<SearchCourseDto> findByInstructorName(Integer instructorId, Integer pageNumber) {
+        public CoursesResponse findByInstructorName(Integer instructorId, Integer pageNumber) {
 
-                Pageable pageable = PageRequest.of(pageNumber, 8);
+              
+                Page<Course> courses = courseRepository.findByInstructorId(instructorId, PageRequest.of(pageNumber, 8));
 
-                List<SearchCourseDto> courses = courseRepository.findByInstructorId(instructorId, pageable).stream()
+                List<SearchCourseDto> coursesDto = courses.stream()
                                 .map(course -> new SearchCourseDto(
                                                 course, courseRepository.findCourseInstructors(course.getId()),
                                                 courseRepository.findCourseCategory(course.getId()),
                                                 courseRepository.findCourseTags(course.getId())))
                                 .toList();
-                return courses;
+                return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", courses.getTotalPages(),
+                                coursesDto);
         }
 
         /**************************************************************************************** */
         public Response getCourse(Integer courseId) {
                 try {
-                        System.out.println("courseId = " + courseId);
-                        System.out.println("tokenUtil.getUserId() = " + tokenUtil.getUserId());
+                        // System.out.println("courseId = " + courseId);
+                        // System.out.println("tokenUtil.getUserId() = " + tokenUtil.getUserId());
                         Course course = courseRepository.findByCourseId(courseId)
                                         .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
                         CourseDto courseDto = new CourseDto(
@@ -208,19 +215,20 @@ public class CourseService {
         }
 
         /**************************************************************************************** */
-        public Response getCoursesByTagId(Integer tagId, Integer pageNumber) {
+        public CoursesResponse getCoursesByTagId(Integer tagId, Integer pageNumber) {
                 try {
-                        List<SearchCourseDto> courses = courseRepository
-                                        .findByTagId(tagId, PageRequest.of(pageNumber, 8))
+                        Page<Course> courses = courseRepository.findByTagId(tagId, PageRequest.of(pageNumber, 8));
+                        List<SearchCourseDto> coursesDto = courses
                                         .stream()
                                         .map(course -> new SearchCourseDto(
                                                         course, courseRepository.findCourseInstructors(course.getId()),
                                                         courseRepository.findCourseCategory(course.getId()),
                                                         courseRepository.findCourseTags(course.getId())))
                                         .toList();
-                        return new Response(HttpStatus.OK, "Courses fetched successfully", courses);
+                        return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", courses.getTotalPages(),
+                                        coursesDto);
                 } catch (Exception e) {
-                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+                        return new CoursesResponse(HttpStatus.NOT_FOUND, e.getMessage(), 0, null);
                 }
         }
 
