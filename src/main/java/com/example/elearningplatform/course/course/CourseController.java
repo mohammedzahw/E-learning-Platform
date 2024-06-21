@@ -83,7 +83,7 @@ public class CourseController {
     /*******************************************************************************************/
 
     @GetMapping("/public/get-course/{id}")
-    // @SecurityRequirement(name = "bearerAuth")
+    @SecurityRequirement(name = "bearerAuth")
     public Response getCourse(@PathVariable("id") Integer id)
             throws SQLException {
         return new Response(HttpStatus.OK, "Success", courseService.getCourse(id));
