@@ -66,24 +66,24 @@ public class CourseController {
 
 
     /*******************************************************************************************/
-    @GetMapping("/public/get-by-category/{categoryId}/{pageNumber}")
-    public CoursesResponse searchCourseWithCategory(@PathVariable("categoryId") Integer categoryId,
+    @GetMapping("/public/get-by-category/{categoryName}/{pageNumber}")
+    public CoursesResponse searchCourseWithCategory(@PathVariable("categoryName") String categoryName,
             @PathVariable("pageNumber") Integer pageNumber) throws SQLException {
-        return courseService.getCoursesByCategoryId(categoryId, pageNumber);
+        return courseService.getCoursesByCategoryName(categoryName, pageNumber);
     }
 
     /*******************************************************************************************/
-    @GetMapping("/public/get-by-tag/{tagId}/{pageNumber}")
-    public CoursesResponse searchCourseWithTag(@PathVariable("tagId") Integer tagId,
+    @GetMapping("/public/get-by-tag/{tagName}/{pageNumber}")
+    public CoursesResponse searchCourseWithTag(@PathVariable("tagName") String tagName,
             @PathVariable("pageNumber") Integer pageNumber)
             throws SQLException {
-        return courseService.getCoursesByTagId(tagId, pageNumber);
+        return courseService.getCoursesByTagName(tagName, pageNumber);
     }
 
     /*******************************************************************************************/
 
     @GetMapping("/public/get-course/{id}")
-    @SecurityRequirement(name = "bearerAuth")
+    // @SecurityRequirement(name = "bearerAuth")
     public Response getCourse(@PathVariable("id") Integer id)
             throws SQLException {
         return new Response(HttpStatus.OK, "Success", courseService.getCourse(id));

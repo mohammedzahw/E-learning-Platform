@@ -86,13 +86,25 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                         JOIN FETCH c.categories cat WHERE cat.id = :categoryId and c.isPublished = true
                 """)
     Page<Course> findByCategoryId(Integer categoryId, Pageable pageable);
+     
+    @Query("""
+                            SELECT c FROM Course c
+                        JOIN FETCH c.categories cat WHERE lower(cat.name) LIKE lower(concat('%', :categoryName, '%')) and c.isPublished = true
+                """)
+    Page<Course> findByCategoryName(String categoryName, Pageable pageable);
 
+    /******************************************************************************************* */
+    // @Query("""
+    //                 SELECT c FROM Course c
+    //         JOIN FETCH c.tags t WHERE t.id = :tagId and c.isPublished = true
+    //                         """)
+    // Page<Course> findByTagId(Integer tagId, Pageable pageable);
     /******************************************************************************************* */
     @Query("""
                     SELECT c FROM Course c
-            JOIN FETCH c.tags t WHERE t.id = :tagId and c.isPublished = true
+            JOIN FETCH c.tags t WHERE lower(t.Tag) LIKE lower(concat('%', :tagName, '%')) and c.isPublished = true
                             """)
-    Page<Course> findByTagId(Integer tagId, Pageable pageable);
+    Page<Course> findByTagName(String tagName, Pageable pageable);
 
     /******************************************************************************************* */
     @Query("""
