@@ -123,7 +123,7 @@ public class CourseService {
                 }
               
                 
-                Page<Course> courses = courseRepository.findBySearchKey(searchKey, PageRequest.of(pageNumber, 20));
+                Page<Course> courses = courseRepository.findBySearchKey(searchKey, PageRequest.of(pageNumber, 8));
                 List<SearchCourseDto> coursesDto = courses.stream()
                                 .map(course -> new SearchCourseDto(
                                                 course, courseRepository.findCourseInstructors(course.getId()),

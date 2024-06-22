@@ -22,7 +22,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     @Query("""
             SELECT c FROM Course c
-            JOIN  c.instructors i WHERE i.id = :id And c.isPublished = true
+             FULL JOIN  c.instructors i WHERE i.id = :id And c.isPublished = true
                 """)
     Page<Course> findByInstructorId(@Param("id") Integer id, Pageable pageable);
 
@@ -68,7 +68,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     /******************************************************************************************* */
     @Query("""
             SELECT c FROM Course c
-            JOIN c.instructors i
+            LEFT JOIN c.instructors i
             WHERE
             (
             lower(c.title) LIKE lower(concat('%', :searchKy, '%'))
@@ -83,13 +83,13 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
    
     @Query("""
                             SELECT c FROM Course c
-                        JOIN FETCH c.categories cat WHERE cat.id = :categoryId and c.isPublished = true
+                        LEFT JOIN c.categories cat WHERE cat.id = :categoryId and c.isPublished = true
                 """)
     Page<Course> findByCategoryId(Integer categoryId, Pageable pageable);
      
     @Query("""
                             SELECT c FROM Course c
-                        JOIN FETCH c.categories cat WHERE lower(cat.name) LIKE lower(concat('%', :categoryName, '%')) and c.isPublished = true
+                          LEFT JOIN c.categories cat WHERE lower(cat.name) LIKE lower(concat('%', :categoryName, '%')) and c.isPublished = true
                 """)
     Page<Course> findByCategoryName(String categoryName, Pageable pageable);
 
@@ -102,7 +102,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     /******************************************************************************************* */
     @Query("""
                     SELECT c FROM Course c
-            JOIN FETCH c.tags t WHERE lower(t.Tag) LIKE lower(concat('%', :tagName, '%')) and c.isPublished = true
+             LEFT JOIN c.tags t WHERE lower(t.Tag) LIKE lower(concat('%', :tagName, '%')) and c.isPublished = true
                             """)
     Page<Course> findByTagName(String tagName, Pageable pageable);
 
