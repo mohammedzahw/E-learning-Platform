@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -191,6 +190,9 @@ public class CourseService {
 
                                                                 )
                                                                 .toList());
+                                section.setNumberOfLessons();
+                                
+                                
                         });
                         courseDto.setSections(sections);
 
@@ -372,6 +374,7 @@ public class CourseService {
                         Course course = courseRepository.findById(courseId)
                                         .orElseThrow(() -> new CustomException("Course not found",
                                                         HttpStatus.NOT_FOUND));
+                        // courseRepository.delete(course);
                         User owner = courseRepository.findOwner(courseId).orElseThrow(
                                         () -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
                         if (!owner.getId().equals(tokenUtil.getUserId())) {
@@ -379,23 +382,30 @@ public class CourseService {
 
                         }
                         System.out.println(course.getGuid());
-                        HttpRequest request = HttpRequest.newBuilder()
-                                        .uri(URI.create(
-                                                        String.format(
-                                                                        "https://api.bunny.net/videolibrary/%s",
-                                                                        course.getGuid())))
-                                        .header("accept", "application/json")
-                                        .header("AccessKey", ApiKey)
-                                        .method("DELETE", HttpRequest.BodyPublishers.noBody())
-                                        .build();
-                        HttpResponse<String> response = HttpClient.newHttpClient().send(request,
-                                        HttpResponse.BodyHandlers.ofString());
-                        System.out.println(response);
-                        if (response.statusCode() >= 200 && response.statusCode() < 300)
-                                courseRepository.delete(course);
+                       course.setPublished(false);
+                        // HttpRequest request = HttpRequest.newBuilder()
+                        //                 .uri(URI.create(
+                        //                                 String.format(
+                        //                                                 "https://api.bunny.net/videolibrary/%s",
+                        //                                                 course.getGuid())))
+                        //                 .header("accept", "application/json")
+                        //                 .header("AccessKey", ApiKey)
+                        //                 .method("DELETE", HttpRequest.BodyPublishers.noBody())
+                        //                 .build();
+                        // HttpResponse<String> response = HttpClient.newHttpClient().send(request,
+                        //                 HttpResponse.BodyHandlers.ofString());
+                        // System.out.println(response);
+                       
+                        // courseTagRepository.deleteByCourseId(courseId);
+                        // courseRepository.delete(course);
+                        // if (response.statusCode() >= 200 && response.statusCode() < 300)
+                        // {
+                        //         courseTagRepository.deleteByCourseId(courseId);
+                        //         courseRepository.delete(course);
+                        // }
 
-                        else
-                                throw new CustomException(response.body(), HttpStatus.INTERNAL_SERVER_ERROR);
+                        // else
+                        //         throw new CustomException(response.body(), HttpStatus.INTERNAL_SERVER_ERROR);
 
                         return new Response(HttpStatus.OK, "Course deleted successfully", null);
                 } catch (CustomException e) {

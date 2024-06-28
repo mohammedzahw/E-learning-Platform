@@ -22,7 +22,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
     @Query("""
             SELECT c FROM Course c
-             FULL JOIN  c.instructors i WHERE i.id = :id And c.isPublished = true
+             LEFT JOIN  c.instructors i WHERE i.id = :id And c.isPublished = true
                 """)
     Page<Course> findByInstructorId(@Param("id") Integer id, Pageable pageable);
 

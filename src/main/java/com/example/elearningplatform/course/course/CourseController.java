@@ -86,7 +86,7 @@ public class CourseController {
     @SecurityRequirement(name = "bearerAuth")
     public Response getCourse(@PathVariable("id") Integer id)
             throws SQLException {
-        return new Response(HttpStatus.OK, "Success", courseService.getCourse(id));
+        return courseService.getCourse(id);
     }
 
     /***************************************************************************************** */
@@ -194,6 +194,8 @@ public class CourseController {
     }
 
     /******************************************************************************************** */
+    
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("publish-course/{id}")
     public Response publishCourse(@PathVariable("id") Integer id) throws SQLException {
         return courseService.publishCourse(id);
