@@ -29,7 +29,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     /******************************************************************************************* */
     @Query("""
             SELECT c FROM Course c
-            WHERE c.id = :id And c.isPublished = true
+            WHERE c.id = :id 
                 """)
     Optional<Course> findByCourseId(@Param("id") Integer id);
 
@@ -93,12 +93,6 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
                 """)
     Page<Course> findByCategoryName(String categoryName, Pageable pageable);
 
-    /******************************************************************************************* */
-    // @Query("""
-    //                 SELECT c FROM Course c
-    //         JOIN FETCH c.tags t WHERE t.id = :tagId and c.isPublished = true
-    //                         """)
-    // Page<Course> findByTagId(Integer tagId, Pageable pageable);
     /******************************************************************************************* */
     @Query("""
                     SELECT c FROM Course c

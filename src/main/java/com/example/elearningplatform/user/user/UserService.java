@@ -141,7 +141,7 @@ public class UserService {
     }
 
 
-    public List<SearchCourseDto> getInstructedCourses() {
+    public List<SearchCourseDto> getInstructorCourses() {
         return   userRepository.findInstructedCourses(tokenUtil.getUserId()).stream()
         .map(course -> {
            

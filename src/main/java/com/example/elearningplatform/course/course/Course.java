@@ -121,8 +121,6 @@ public class Course {
         @ToString.Exclude
         private Set<CourseTag> tags ;
 
-        // @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-        // private Set<CourseTag> courseTags;
 
         @ManyToMany(fetch = FetchType.LAZY)
         @JoinTable(name = "course_instructors", joinColumns = @JoinColumn(name = "course_id", unique = false), inverseJoinColumns = @JoinColumn(name = "user_id", unique = false))

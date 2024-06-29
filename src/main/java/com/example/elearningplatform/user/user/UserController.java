@@ -119,10 +119,10 @@ public class UserController {
 
     /************************************************************************************************************* */
     @SecurityRequirement(name = "bearerAuth")
-    @PostMapping("/get-instructed-courses")
+    @PostMapping("/get-instructor-courses")
     public Response getIstructedCourses() {
 
-        return new Response(HttpStatus.OK, "Success", userService.getInstructedCourses());
+        return new Response(HttpStatus.OK, "Success", userService.getInstructorCourses());
     }
     /************************************************************************************************************* */
     @SecurityRequirement(name = "bearerAuth")

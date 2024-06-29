@@ -134,7 +134,7 @@ public class ReviewService {
             review.setCourse(courseRepository.findById(request.getCourseId()).get());
             review.setUser(tokenUtil.getUser());
             reviewRepository.save(review);
-            return new Response(HttpStatus.OK, "Review added successfully", new ReviewDto(review));
+            return new Response(HttpStatus.OK, "Review added successfully", null);
         } catch (CustomException e) {
             return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
