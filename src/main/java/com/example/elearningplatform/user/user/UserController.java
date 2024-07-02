@@ -82,6 +82,7 @@ public class UserController {
 
     }
 
+
     /***************************************************************************************************/
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/delete-user")

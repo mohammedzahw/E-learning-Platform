@@ -2,12 +2,13 @@ package com.example.elearningplatform.payment.paypal;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -25,13 +26,13 @@ import com.example.elearningplatform.payment.paypal.transactions.TempTransaction
 import com.example.elearningplatform.payment.paypal.transactions.TempTransactionUserRepository;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
+import com.example.elearningplatform.user.cart.CartRepository;
 import com.example.elearningplatform.user.user.User;
 import com.example.elearningplatform.user.user.UserRepository;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -62,13 +63,53 @@ public class PaypalController {
 	private CourseService courseService;
 	@Autowired
 	private CouponService couponService;
+	@Autowired
+	private CartRepository cartRepository;
 
 	private final String prefixHttp = "http://";
 
 	/************************************
 	 * CREATE PAYMENT ****************************************
 	 */
+	@GetMapping("/enroll-course")
+	public Response enrollCourse(@RequestBody ApplyCouponRequest coupon) {
+		try {
+			Response response = couponService.applyCoupon(coupon);
+			if (response.getStatus() == HttpStatus.OK) {
+				User user = userRepository.findById(tokenUtil.getUserId())
+						.orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+				Course course = courseRepository.findById(coupon.getCourseId())
+						.orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
+				courseRepository.enrollCourse(user.getId(), course.getId());
 
+				course.incrementNumberOfEnrollments();
+
+				return new Response(HttpStatus.OK, "Course enrolled successfully", null);
+
+			}
+			return response;
+		} catch (CustomException e) {
+			return new Response(e.getStatus(), e.getMessage(), null);
+		} catch (Exception e) {
+			return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+		}
+	}
+
+	/************************************************************************************************** */
+	@GetMapping("checkout")
+	public Response checkouta() {
+
+		List<Course> courses = cartRepository.findCartCourses(tokenUtil.getUserId());
+		for (Course course : courses) {
+
+			courseRepository.enrollCourse(tokenUtil.getUserId(), course.getId());
+			course.incrementNumberOfEnrollments();
+		}
+		return new Response(HttpStatus.OK, "Checkout successfully", null);
+
+	}
+
+	/************************************************************************************************** */
 	@GetMapping("/paypal")
 	public ModelAndView home() {
 		ModelAndView modelAndView = new ModelAndView();
@@ -77,11 +118,14 @@ public class PaypalController {
 		return modelAndView;
 	}
 
+	/************************************************************************************************** */
+
 	@PostMapping("/payment/create")
 	public RedirectView createPayment(@RequestBody ApplyCouponRequest applyCouponRequest) {
 		try {
+			System.out.println(applyCouponRequest);
 			User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
-			if(user==null || user.getPaypalEmail()==null ) {
+			if (user == null) {
 				return new RedirectView("/payment/error");
 			}
 			// if(courseService.ckeckCourseSubscribe(applyCouponRequest.getCourseId())) {
@@ -95,12 +139,14 @@ public class PaypalController {
 				}
 			}
 		} catch (PayPalRESTException e) {
-			log.error("Error occurred:: ", e);
+
+			return new RedirectView("/payment/error");
 		}
 		return new RedirectView("/payment/error");
 	}
 
 	/***************************************************************************************** */
+	/************************************************************************************************** */
 	@PostMapping("/payment/checkout")
 	public RedirectView checkout(@RequestBody ApplyCouponRequestList applyCouponRequest) {
 		try {

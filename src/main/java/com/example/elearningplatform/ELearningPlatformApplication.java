@@ -1,7 +1,5 @@
 package com.example.elearningplatform;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -10,8 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.example.elearningplatform.course.lesson.LessonService;
-import com.example.elearningplatform.user.role.Role;
-import com.example.elearningplatform.user.role.RoleRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.Setter;

@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class ChangePasswordRequest {
-    private String email;
+    // private String email;
     @NotEmpty(message = "Password cannot be empty")
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$", message = "Password must contain at least one number, one uppercase letter, one lowercase letter, one special character, and be at least 8 characters long")
     private String password;

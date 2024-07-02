@@ -18,9 +18,9 @@ import com.example.elearningplatform.user.user.User;
 import com.example.elearningplatform.user.user.UserRepository;
 import com.example.elearningplatform.validator.Validator;
 
-import ch.qos.logback.core.model.Model;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -50,34 +50,44 @@ public class ResetPasswordController {
             return new Response(HttpStatus.BAD_REQUEST, "User not found", null);
         if (!user.isEnabled()) {
             return signUpService.sendRegistrationVerificationCode(email.getEmail(), request,
-                    tokenUtil.generateToken(email.getEmail(), 1000, 1000L));
+                    tokenUtil.generateToken(email.getEmail(), user.getId(), 900L));
         }
         return resetPasswordService.sendResetpasswordEmail(email.getEmail(), request,
-                tokenUtil.generateToken(email.getEmail(), 1000, 1000L));
+                tokenUtil.generateToken(email.getEmail(), user.getId(), 900L));
     }
 
     /***************************************************************************************************************/
 
-    @PostMapping("/change-password")
-    public Response changePassword(@RequestBody @Valid ChangePasswordRequest data, BindingResult result,
+    @PostMapping("/change-password/{token}")
+    public Response changePassword(@PathVariable("token") String token,@RequestBody @Valid ChangePasswordRequest data, BindingResult result,
             HttpServletRequest request)
             throws SQLException, IOException, MessagingException {
         if (result.hasErrors()) {
             return Validator.validate(result);
         }
-        return resetPasswordService.savePassword(data.getEmail(), data.getPassword());
+        String email = tokenUtil.getUserName(token);
+
+        return resetPasswordService.savePassword(email, data.getPassword());
     }
 
     /***************************************************************************************************************/
     @GetMapping("/check-token/{token}")
-    public Response savePassword(@PathVariable("token") String token, Model model)
+    public void savePassword(@PathVariable("token") String token, HttpServletResponse response)
             throws SQLException, IOException {
 
-        if (tokenUtil.isTokenExpired(token)) {
-            return new Response(HttpStatus.BAD_REQUEST, "invalid token", null);
+        String email = tokenUtil.getUserName(token);
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (tokenUtil.isTokenExpired(token) || user == null) {
+            response.sendRedirect("https://zakker.vercel.app/reset-password/?token=invalid");
+            return;
+            // return new Response(HttpStatus.BAD_REQUEST, "invalid token", null);
         }
-        return new Response(HttpStatus.OK, "valid token",
-                tokenUtil.getUserName(token));
+
+        String tkn = tokenUtil.generateToken(email, user.getId(), 900L);
+        response.sendRedirect("https://zakker.vercel.app/reset-password/?token=" + tkn);
+        // return new Response(HttpStatus.OK, "valid token",
+        // tokenUtil.getUserName(token));
     }
     /***************************************************************************************************************/
 

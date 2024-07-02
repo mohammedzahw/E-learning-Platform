@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.payment.coupon.Coupon;
 import com.example.elearningplatform.payment.coupon.CouponRepository;
 import com.example.elearningplatform.payment.coupon.CouponService;
@@ -50,7 +51,7 @@ public class PaypalService {
       /****************************************************************************************/
       public Payment createPayment(ApplyCouponRequest applyCouponRequest) throws PayPalRESTException {
          
-
+           
             String successUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
                         + "/payment/success";
@@ -60,7 +61,7 @@ public class PaypalService {
 
             Response response = couponService.applyCoupon(applyCouponRequest);
             if (response.getStatus() != HttpStatus.OK) {
-                  throw new PayPalRESTException((String) response.getData());
+                  throw new PayPalRESTException(response.getData().toString());
             }
             Double price = (Double) couponService.applyCoupon(applyCouponRequest).getData();
 
@@ -91,15 +92,15 @@ public class PaypalService {
 
             Coupon coupon = couponRepository
                         .findByCodeAndCourseId(applyCouponRequest.getCouponCode(), applyCouponRequest.getCourseId())
-                        .orElseThrow(() -> new IllegalArgumentException("Coupon not found"));
+                        .orElse(null);
 
             payment = payment.create(apiContext);
 
             TempTransactionUser tempTransactionUser = new TempTransactionUser();
             tempTransactionUser.setCourseId(applyCouponRequest.getCourseId());
             tempTransactionUser.setUserId(tokenUtil.getUserId());
-            // tempTransactionUser.setUserId(tokenUtil.getUserId());
-            tempTransactionUser.setCouponId(coupon.getId());
+            if (coupon != null)
+                  tempTransactionUser.setCouponId(coupon.getId());
             tempTransactionUser.setPrice(((int) (price * 100)));
             tempTransactionUser.setConfirmed(false);
       
@@ -109,7 +110,9 @@ public class PaypalService {
             tempTransactionUserRepository.save(tempTransactionUser);
             // System.out.println("Created Payment ID: " + payment.toString());
             return payment;
-      }
+      
+     
+}
 
       /**************************************************** */
       public Payment checkout(ApplyCouponRequestList applyCouponRequest) throws PayPalRESTException {
@@ -126,7 +129,7 @@ public class PaypalService {
             for (ApplyCouponRequest coupon : applyCouponRequestList) {
                   Response response = couponService.applyCoupon(coupon);
                   if (response.getStatus() != HttpStatus.OK) {
-                        throw new PayPalRESTException((String) response.getData());
+                        throw new PayPalRESTException(response.getData().toString());
                   }
                   price += (Double) couponService.applyCoupon(coupon).getData();
             }
@@ -165,7 +168,7 @@ public class PaypalService {
             for (ApplyCouponRequest applyCouponRequest2 : applyCouponRequestList) {
                   Coupon coupon = couponRepository
                               .findByCodeAndCourseId(applyCouponRequest2.getCouponCode(), applyCouponRequest2.getCourseId())
-                              .orElseThrow(() -> new IllegalArgumentException("Coupon not found"));
+                              .orElse(null);
 
                   TempTransactionUser tempTransactionUser = new TempTransactionUser();
                   tempTransactionUser.setCourseId(applyCouponRequest2.getCourseId());

@@ -3,8 +3,6 @@ package com.example.elearningplatform.login;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import javax.sql.rowset.serial.SerialException;
-
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -25,6 +23,7 @@ import com.example.elearningplatform.validator.Validator;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -56,20 +55,22 @@ public class LoginController implements ErrorController {
         return loginService.verifyLogin(loginRequest, request);
     }
 
-    /*****************************************************************************************************************/
+    /**
+     * @throws IOException
+     ***************************************************************************************************************/
     @GetMapping("/login/google")
     public RedirectView loginWithGoogle(HttpServletRequest request) {
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
     RedirectView redirectView = new RedirectView();
     redirectView.setUrl(baseUrl + "/oauth2/authorization/google");
+    return redirectView;
 
-        return redirectView;
     }
 
     /*****************************************************************************************************************/
     /*****************************************************************************************************************/
     @GetMapping("/login/github")
-    public RedirectView loginWithGithub(HttpServletRequest request) {
+    public RedirectView loginWithGithub(HttpServletRequest request, HttpServletRequest response) {
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
     RedirectView redirectView = new RedirectView();
         redirectView.setUrl(baseUrl + "/oauth2/authorization/github");
@@ -79,29 +80,28 @@ public class LoginController implements ErrorController {
     /*****************************************************************************************************************/
 
     @GetMapping("/login/oauth2/success")
-    public Response loginOuth2(@AuthenticationPrincipal OAuth2User oAuth2User)
-            throws SerialException, IOException, SQLException {
-        // System.out.println("mohamed");
-
+    public void loginOuth2(@AuthenticationPrincipal OAuth2User oAuth2User, HttpServletResponse response)
+            throws IOException, SQLException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // System.out.println(authentication);
         try {
             if (authentication instanceof OAuth2AuthenticationToken) {
-
                 OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
-
                 String registrationId = oauthToken.getAuthorizedClientRegistrationId();
 
-                return loginService.loginOuth2(oAuth2User.getAttributes(), registrationId);
-
+                Response res = loginService.loginOuth2(oAuth2User.getAttributes(), registrationId);
+                if (res.getStatus() == HttpStatus.OK) {
+                    String token = res.getData().toString();
+                    response.sendRedirect("https://zakker.vercel.app/?token=" + token);
+                } else {
+                    throw new CustomException("Failed to log in", HttpStatus.UNAUTHORIZED);
+                }
             } else {
-
                 throw new CustomException("User is not authenticated with OAuth2", HttpStatus.UNAUTHORIZED);
             }
         } catch (CustomException e) {
-            return new Response(e.getStatus(), e.getMessage(), null);
+            response.sendError(e.getStatus().value(), e.getMessage());
         } catch (Exception e) {
-            return new Response(HttpStatus.BAD_REQUEST, "login failed ! : " + e.getMessage(), null);
+            response.sendError(HttpStatus.BAD_REQUEST.value(), "Login failed: " + e.getMessage());
         }
     }
 
@@ -117,11 +117,17 @@ public class LoginController implements ErrorController {
     // return "/login-success";
     // }
 
-    // @GetMapping("/login-error")
-    // public String loginSuccess() {
+    @GetMapping("/login-error")
+    public String loginSuccess() {
 
-    // return "error";
+        return "error";
+    }
+    // @GetMapping("/error")
+    // public String loguccess() {
+
+    // return new RedirectView("https://zakker.vercel.app/").toString();
     // }
+
 }
 
 
