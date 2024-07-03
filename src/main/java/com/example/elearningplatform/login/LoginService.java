@@ -75,7 +75,7 @@ public class LoginService {
             } else {
                 throw new CustomException("Provider not supported!", HttpStatus.BAD_REQUEST);
             }
-            // System.out.println("user name : " + oAuth2UserDetails.getName());
+            // System.out.println("user name : " + oAuth2UserDetails.getEmail());
             User user = userRepository.findByEmail(oAuth2UserDetails.getEmail()).orElse(null);
             // System.out.println(user);
          
@@ -89,8 +89,10 @@ public class LoginService {
 
             return new Response(HttpStatus.OK, "Success!", token);
         } catch (CustomException e) {
+            // System.out.println(e.getMessage());
             return new Response(e.getStatus(), e.getMessage(), null);
         } catch (Exception e) {
+            // System.out.println(e.getMessage());
             return new Response(HttpStatus.BAD_REQUEST, "Provider not supported!", e.getMessage());
         }
     }

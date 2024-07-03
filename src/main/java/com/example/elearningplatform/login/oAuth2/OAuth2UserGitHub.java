@@ -26,6 +26,8 @@ public class OAuth2UserGitHub extends OAuth2UserDetails {
     @Override
     public String getFirstName() {
         String name = (String) attributes.get("name");
+        if (name == null)
+            return null;
         String[] parts = name.split(" ");
         return parts[0];
     }
@@ -33,6 +35,8 @@ public class OAuth2UserGitHub extends OAuth2UserDetails {
     @Override
     public String getLastName() {
         String name = (String) attributes.get("name");
+        if (name == null)
+            return null;
         String[] parts = name.split(" ", 2);
         return parts.length > 1 ? parts[1] : "";
     }
