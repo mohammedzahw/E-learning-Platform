@@ -136,7 +136,6 @@ public class CourseService {
 
                 return new CoursesResponse(HttpStatus.OK, "Courses fetched successfully", courses.getTotalPages(),
                                 coursesDto);
-
         }
 
         /****************************************************************************************/
@@ -331,6 +330,7 @@ public class CourseService {
                         }
                         Course course = new Course(createCourseRequest);
                         course.setOwner(user);
+                        courseRepository.enrollCourse(user.getId(), course.getId());
                         course.setGuid(Integer.parseInt(responseMap.get("Id").toString()));
                         course.setApiKey(responseMap.get("ApiKey").toString());
                         Set<Category> categories = new HashSet<>();

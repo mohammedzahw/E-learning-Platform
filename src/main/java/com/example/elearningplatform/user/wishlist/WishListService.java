@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.exception.CustomException;
@@ -48,6 +49,11 @@ public class WishListService {
 
             if (wishListRepository.findCourseInWhishList(courseId, tokenUtil.getUserId()).isPresent()) {
                 throw new CustomException("Course already in wishlist", HttpStatus.BAD_REQUEST);
+            }
+            Course course = courseRepository.findById(courseId).orElseThrow(
+                    () -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
+            if (course.getOwner().getId().equals(tokenUtil.getUserId())) {
+                return new Response(HttpStatus.OK, "You cannot add your own course to wishlist", null);
             }
 
             wishListRepository.addToWishlist(tokenUtil.getUserId(), courseId);

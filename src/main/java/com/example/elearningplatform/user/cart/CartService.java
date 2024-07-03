@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
+import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
+import com.example.elearningplatform.user.user.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -22,6 +25,8 @@ public class CartService {
     private TokenUtil tokenUtil;
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /************************************************************************************************************/
 
@@ -63,6 +68,11 @@ public class CartService {
         try {
             if (cartRepository.findCourseInCart(courseId, tokenUtil.getUserId()).isPresent()) {
                 return new Response(HttpStatus.BAD_REQUEST, "Course already in cart", null);
+            }
+            Course course = courseRepository.findById(courseId).orElseThrow(
+                    () -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
+            if (course.getOwner().getId().equals(tokenUtil.getUserId())) {
+                return new Response(HttpStatus.OK, "You cannot add your own course to cart", null);
             }
 
             cartRepository.addToCart(tokenUtil.getUserId(), courseId);
