@@ -10,6 +10,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.session.web.http.CookieHttpSessionIdResolver;
+import org.springframework.session.web.http.DefaultCookieSerializer;
+import org.springframework.session.web.http.HttpSessionIdResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -57,8 +60,10 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+                        .allowedOriginPatterns("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }
@@ -94,10 +99,24 @@ public class SecurityConfig {
                     response.getWriter().write("Access Denied");
                 }));
 
-        http.oauth2Login(login -> login.defaultSuccessUrl("/login/oauth2/success"));
+        http.oauth2Login(login -> login.defaultSuccessUrl("/login/oauth2/success"))
+                .sessionManagement(management -> management
+                        .sessionFixation().migrateSession());
 
 
         return http.build();
+    }
+
+    @Bean
+    public HttpSessionIdResolver httpSessionIdResolver() {
+        CookieHttpSessionIdResolver resolver = new CookieHttpSessionIdResolver();
+        DefaultCookieSerializer cookieSerializer = new DefaultCookieSerializer();
+        cookieSerializer.setCookieName("SESSIONID");
+        cookieSerializer.setCookiePath("/");
+        cookieSerializer.setUseHttpOnlyCookie(true);
+        cookieSerializer.setUseSecureCookie(true); // Use this only if you are using HTTPS
+        resolver.setCookieSerializer(cookieSerializer);
+        return resolver;
     }
     /***************************************************************************************************** */
             
