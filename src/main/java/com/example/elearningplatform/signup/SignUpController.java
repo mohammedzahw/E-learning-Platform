@@ -3,6 +3,7 @@ package com.example.elearningplatform.signup;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,16 +21,21 @@ import com.example.elearningplatform.validator.Validator;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @RestController
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class SignUpController {
 
-    private final SignUpService signUpService;
+    @Autowired
+    private SignUpService signUpService;
 
-    private final UserRepository userRepository;
-    private final TokenUtil tokenUtil;
+   @Autowired
+   private UserRepository userRepository;
+   @Autowired
+   private TokenUtil tokenUtil;
 
     /******************************************************************************************************************/
 

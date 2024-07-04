@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.lesson.note.Note;
-import com.example.elearningplatform.user.address.Address;
+
 import com.example.elearningplatform.user.role.Role;
 
 import jakarta.persistence.CascadeType;
@@ -70,9 +70,9 @@ public class User implements UserDetails {
     private Integer age;
 
 
-    @OneToOne(fetch = FetchType.LAZY,mappedBy = "user", cascade = CascadeType.REMOVE)
-    @ToString.Exclude
-    private Address address;
+    // @OneToOne(fetch = FetchType.LAZY,mappedBy = "user", cascade = CascadeType.REMOVE)
+    // @ToString.Exclude
+    // private Address address;
 
 
     @ManyToMany(fetch = FetchType.EAGER)

@@ -2,8 +2,6 @@ package com.example.elearningplatform.user.user.dto;
 
 import java.time.LocalDateTime;
 
-import com.example.elearningplatform.user.address.Address;
-import com.example.elearningplatform.user.address.AddressDto;
 import com.example.elearningplatform.user.user.User;
 
 import lombok.Data;
@@ -30,11 +28,11 @@ public class ProfileDto {
     private String about;
 
     private Integer age;
-    private AddressDto address;
+    // private AddressDto address;
 
     // private AddressDto address;
 
-    public ProfileDto(User user, Address address) {
+    public ProfileDto(User user) {
 
         this.email = user.getEmail();
         this.firstName = user.getFirstName();
@@ -47,7 +45,7 @@ public class ProfileDto {
         this.age = user.getAge();
         this.paypalEmail = user.getPaypalEmail();
 
-        this.address = new AddressDto(user.getAddress());
+        // this.address = new AddressDto(user.getAddress());
 
     }
 

@@ -11,8 +11,8 @@ import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.address.Address;
-import com.example.elearningplatform.user.address.AddressRepository;
+
+
 import com.example.elearningplatform.user.user.dto.ProfileDto;
 import com.example.elearningplatform.user.user.dto.UpdateProfileRequest;
 import com.example.elearningplatform.user.user.dto.UserDto;
@@ -27,8 +27,7 @@ public class UserService {
     @Autowired private UserRepository userRepository;
     @Autowired private TokenUtil tokenUtil;
     @Autowired private CourseRepository courseRepository;
-    @Autowired
-    private AddressRepository addressRepository;
+    // @Autowired private AddressRepository addressRepository;
 
     /************************************************************************************************************/
     public Response getUser(Integer userId) {
@@ -64,8 +63,8 @@ public class UserService {
         try {
             User user = userRepository.findById(tokenUtil.getUserId())
                     .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
-            Address address = userRepository.findAdress(tokenUtil.getUserId()).orElse(null);
-            ProfileDto profileDto = new ProfileDto(user, address);
+            // Address address = userRepository.findAdress(tokenUtil.getUserId()).orElse(null);
+            ProfileDto profileDto = new ProfileDto(user);
 
             return new Response(HttpStatus.OK, "Success", profileDto);
         } catch (CustomException e) {
@@ -91,14 +90,14 @@ public class UserService {
             user.setAbout(updateProfileRequest.getAbout());
             user.setAge(updateProfileRequest.getAge());
             user.setPaypalEmail(updateProfileRequest.getPaypalEmail());
-            Address address = userRepository.findAdress(tokenUtil.getUserId()).orElse(null);
-            if(address == null) 
-            address = new Address();
-            address.setStreet(updateProfileRequest.getStreet());
-            address.setCity(updateProfileRequest.getCity());
-            address.setState(updateProfileRequest.getState());
-            address.setCountry(updateProfileRequest.getCountry());
-            addressRepository.save(address);
+            // Address address = userRepository.findAdress(tokenUtil.getUserId()).orElse(null);
+            // if(address == null) 
+            // address = new Address();
+            // address.setStreet(updateProfileRequest.getStreet());
+            // address.setCity(updateProfileRequest.getCity());
+            // address.setState(updateProfileRequest.getState());
+            // address.setCountry(updateProfileRequest.getCountry());
+            // addressRepository.save(address);
             
             userRepository.save(user);
             return new Response(HttpStatus.OK, "Profile updated successfully", null);

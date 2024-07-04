@@ -23,11 +23,11 @@ public class SignUpRequest {
     private String password;
     @Pattern(regexp = "^01\\d{9}$", message = "Invalid phone number")
     private String phoneNumber;
-    private String street;
-    private String city;
-    private String state;
-    private String country;
-    private String zipCode;
+    // private String street;
+    // private String city;
+    // private String state;
+    // private String country;
+    // private String zipCode;
     private String bio;
     private Integer age;
 

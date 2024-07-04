@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.sql.rowset.serial.SerialException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,8 +18,7 @@ import com.example.elearningplatform.email.EmailService;
 import com.example.elearningplatform.login.oAuth2.OAuth2UserDetails;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.address.Address;
-import com.example.elearningplatform.user.address.AddressRepository;
+
 import com.example.elearningplatform.user.role.Role;
 import com.example.elearningplatform.user.role.RoleRepository;
 import com.example.elearningplatform.user.user.User;
@@ -26,18 +26,29 @@ import com.example.elearningplatform.user.user.UserRepository;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class SignUpService {
 
-    private final UserRepository userRepository;
-    private final TokenUtil tokenUtil;
-    private final EmailService emailService;
-    private final PasswordEncoder passwordEncoder;
-    private final AddressRepository addressRepository;
-    private final RoleRepository roleRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private TokenUtil tokenUtil;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     /******************************************************************************************************************/
 
@@ -53,9 +64,10 @@ public class SignUpService {
             Role role = roleRepository.findByRole("ROLE_USER").orElse(null);
             user.setRoles(List.of(role));
             userRepository.save(user);
-            Address address = Address.builder().user(user).city(request.getCity()).country(request.getCountry())
-                    .street(request.getStreet()).state(request.getState()).zipCode(request.getZipCode()).build();
-            addressRepository.save(address);
+            // Address address =
+            // Address.builder().user(user).city(request.getCity()).country(request.getCountry())
+            // .street(request.getStreet()).state(request.getState()).zipCode(request.getZipCode()).build();
+            // addressRepository.save(address);
 
             return new Response(HttpStatus.OK, null, user);
 

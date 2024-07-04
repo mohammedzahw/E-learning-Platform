@@ -345,19 +345,19 @@ public class CourseService {
                         course.setCategories(categories);
                         Set<String> tags = new HashSet<>(createCourseRequest.getTags());
                         Set<CourseTag> courseTags = new HashSet<>();
-
-                        // System.out.println("course" + course);
                         courseRepository.save(course);
                         courseRepository.enrollCourse(user.getId(), course.getId());
-                        tags.forEach(tag -> {
+                      
+                         tags.forEach(tag -> {
                                 CourseTag tage = new CourseTag();
-                                tage.setTag(tag);
-                                tage.setCourse(course);
-                                courseTags.add(tage);
-                                // courseTagRepository.save(tage);
+                               tage.setTag(tag);
+                               tage.setCourse(course);
+                               
+                               courseTags.add(tage);
+                               // courseTagRepository.save(tage);
 
                         });
-                        // courseRepository.save(course);
+                        // // courseRepository.save(course);
                         courseTagRepository.saveAll(courseTags);
 
                         return new Response(HttpStatus.OK, "Course created successfully",

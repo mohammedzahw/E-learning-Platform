@@ -1,36 +1,36 @@
-package com.example.elearningplatform.user.address;
+// package com.example.elearningplatform.user.address;
 
-import lombok.Data;
+// import lombok.Data;
 
-@Data
-public class AddressDto {
-
-
-    private Integer id;
+// @Data
+// public class AddressDto {
 
 
-    private String street;
+//     private Integer id;
 
 
-    private String city;
+//     private String street;
 
 
-    private String state;
+//     private String city;
 
 
-    private String country;
+//     private String state;
 
 
-    private String zipCode;
-    public AddressDto(Address address) {
-        if (address == null) {
-            return;
-        }
-        this.id = address.getId();
-        this.street = address.getStreet();
-        this.city = address.getCity();
-        this.state = address.getState();
-        this.country = address.getCountry();
-        this.zipCode = address.getZipCode();
-    }
-}
+//     private String country;
+
+
+//     private String zipCode;
+//     public AddressDto(Address address) {
+//         if (address == null) {
+//             return;
+//         }
+//         this.id = address.getId();
+//         this.street = address.getStreet();
+//         this.city = address.getCity();
+//         this.state = address.getState();
+//         this.country = address.getCountry();
+//         this.zipCode = address.getZipCode();
+//     }
+// }
