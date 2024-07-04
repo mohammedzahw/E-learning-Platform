@@ -330,7 +330,7 @@ public class CourseService {
                         }
                         Course course = new Course(createCourseRequest);
                         course.setOwner(user);
-                        courseRepository.enrollCourse(user.getId(), course.getId());
+                       
                         course.setGuid(Integer.parseInt(responseMap.get("Id").toString()));
                         course.setApiKey(responseMap.get("ApiKey").toString());
                         Set<Category> categories = new HashSet<>();
@@ -348,6 +348,7 @@ public class CourseService {
 
                         // System.out.println("course" + course);
                         courseRepository.save(course);
+                        courseRepository.enrollCourse(user.getId(), course.getId());
                         tags.forEach(tag -> {
                                 CourseTag tage = new CourseTag();
                                 tage.setTag(tag);
