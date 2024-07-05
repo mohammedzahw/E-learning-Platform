@@ -116,14 +116,15 @@ public class CourseController {
         return courseService.updateCourse(course);
     }
 
-    /*********************************************************************************************************** */
+    /************************************************************************************************************/
     @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/delete-course")
     public Response unPublishCourse(@RequestParam("id") Integer id) throws SQLException {
 
         return courseService.unPublishCourse(id);
     }
-    /*************************************************************************************************** */
+    
+    /************************************************************************************************************/
 
     // @GetMapping("/display-image/{id}")
     // public Response displayImage(@PathVariable("id") Integer id) throws

@@ -294,6 +294,7 @@ public class CourseService {
                         User user = userRepository.findById(tokenUtil.getUserId())
                                         .orElseThrow(() -> new CustomException("Please login", HttpStatus.NOT_FOUND));
 
+
                         if (user.getPaypalEmail() == null) {
                                 throw new CustomException("please set the owner paypal email", HttpStatus.NOT_FOUND);
 
@@ -319,6 +320,7 @@ public class CourseService {
                         }
                         Course course = new Course(createCourseRequest);
                         course.setOwner(user);
+                        course.setInstructors(List.of(user));
                        
                         course.setGuid(Integer.parseInt(responseMap.get("Id").toString()));
                         course.setApiKey(responseMap.get("ApiKey").toString());
@@ -521,7 +523,7 @@ public class CourseService {
                                                         HttpStatus.NOT_FOUND));
                         User owner = courseRepository.findOwner(id).orElseThrow(
                                         () -> new CustomException("please set the owner", HttpStatus.NOT_FOUND));
-                        if (owner.getPaypalEmail() == null) {
+                        if (owner.getPaypalEmail() == null || owner.getPaypalEmail().isEmpty()) {
                                 throw new CustomException("please set the owner paypal email", HttpStatus.NOT_FOUND);
                         }
 
