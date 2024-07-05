@@ -86,7 +86,7 @@ public class SectionService {
             section.setGuid(responseMap.get("guid").toString());
             section.setCourse(course);
             sectionRepository.save(section);
-            return new Response(HttpStatus.CREATED, "Section created successfully", null);
+            return new Response(HttpStatus.CREATED, "Section created successfully", new SectionDto(section));
 
         } catch (CustomException e) {
             return new Response(e.getStatus(), e.getMessage(), null);
