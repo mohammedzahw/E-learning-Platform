@@ -133,11 +133,6 @@ public class PaypalService {
                   }
                   price += (Double) couponService.applyCoupon(coupon).getData();
             }
-            // Response response = couponService.applyCoupon(applyCouponRequest);
-            // if (response.getStatus() != HttpStatus.OK) {
-            //       throw new PayPalRESTException((String) response.getData());
-            // }
-            // Double price = (Double) couponService.applyCoupon(applyCouponRequest).getData();
 
             Amount amount = new Amount();
             amount.setCurrency("USD");
@@ -183,23 +178,7 @@ public class PaypalService {
                   tempTransactionUser.setPaymentMethod("paypal");
                   tempTransactionUserRepository.save(tempTransactionUser);
             }
-            // Coupon coupon = couponRepository
-            //             .findByCodeAndCourseId(applyCouponRequest.getCouponCode(), applyCouponRequest.getCourseId())
-            //             .orElseThrow(() -> new IllegalArgumentException("Coupon not found"));
-
-            // TempTransactionUser tempTransactionUser = new TempTransactionUser();
-            // tempTransactionUser.setCourseId(applyCouponRequest.getCourseId());
-            // tempTransactionUser.setUserId(tokenUtil.getUserId());
-            // // tempTransactionUser.setUserId(tokenUtil.getUserId());
-            // tempTransactionUser.setCouponId(coupon.getId());
-            // tempTransactionUser.setPrice(((int) (price * 100)));
-            // tempTransactionUser.setConfirmed(false);
-
-            // tempTransactionUser.setPaymentId(payment.getId());
-            // tempTransactionUser.setCurrency("USD");
-            // tempTransactionUser.setPaymentMethod("paypal");
-            // tempTransactionUserRepository.save(tempTransactionUser);
-            // System.out.println("Created Payment ID: " + payment.toString());
+    
             return payment;
       }
 /********************************************** PayPal Payment Execution ************************************************/
@@ -213,8 +192,6 @@ public class PaypalService {
 
             PaymentExecution paymentExecution = new PaymentExecution();
             paymentExecution.setPayerId(payerId);
-            // System.out.println(payment.toString());
-            // System.out.println(paymentExecution.toString());
 
             return payment.execute(apiContext, paymentExecution);
       }

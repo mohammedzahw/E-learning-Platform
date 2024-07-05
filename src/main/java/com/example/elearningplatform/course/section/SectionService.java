@@ -86,7 +86,7 @@ public class SectionService {
             section.setGuid(responseMap.get("guid").toString());
             section.setCourse(course);
             sectionRepository.save(section);
-            return new Response(HttpStatus.CREATED, "Section created successfully", new SectionDto(section));
+            return new Response(HttpStatus.CREATED, "Section created successfully", null);
 
         } catch (CustomException e) {
             return new Response(e.getStatus(), e.getMessage(), null);
@@ -105,7 +105,7 @@ public class SectionService {
             section.setDescription(updateSectionRequest.getDescription());
             section.setTitle(updateSectionRequest.getTitle());
             sectionRepository.save(section);
-            return new Response(HttpStatus.CREATED, "Section created successfully", section);
+            return new Response(HttpStatus.CREATED, "Section created successfully", null);
 
         } catch (CustomException e) {
             return new Response(e.getStatus(), e.getMessage(), null);

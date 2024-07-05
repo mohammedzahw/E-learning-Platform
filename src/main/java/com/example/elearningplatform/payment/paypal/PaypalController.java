@@ -71,43 +71,46 @@ public class PaypalController {
 	/************************************
 	 * CREATE PAYMENT ****************************************
 	 */
-	@GetMapping("/enroll-course")
-	public Response enrollCourse(@RequestBody ApplyCouponRequest coupon) {
-		try {
-			Response response = couponService.applyCoupon(coupon);
-			if (response.getStatus() == HttpStatus.OK) {
-				User user = userRepository.findById(tokenUtil.getUserId())
-						.orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
-				Course course = courseRepository.findById(coupon.getCourseId())
-						.orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
-				courseRepository.enrollCourse(user.getId(), course.getId());
+	// @GetMapping("/enroll-course")
+	// public Response enrollCourse(@RequestBody ApplyCouponRequest coupon) {
+	// try {
+	// Response response = couponService.applyCoupon(coupon);
+	// if (response.getStatus() == HttpStatus.OK) {
+	// User user = userRepository.findById(tokenUtil.getUserId())
+	// .orElseThrow(() -> new CustomException("User not found",
+	// HttpStatus.NOT_FOUND));
+	// Course course = courseRepository.findById(coupon.getCourseId())
+	// .orElseThrow(() -> new CustomException("Course not found",
+	// HttpStatus.NOT_FOUND));
+	// courseRepository.enrollCourse(user.getId(), course.getId());
 
-				course.incrementNumberOfEnrollments();
+	// course.incrementNumberOfEnrollments();
 
-				return new Response(HttpStatus.OK, "Course enrolled successfully", null);
+	// return new Response(HttpStatus.OK, "Course enrolled successfully", null);
 
-			}
-			return response;
-		} catch (CustomException e) {
-			return new Response(e.getStatus(), e.getMessage(), null);
-		} catch (Exception e) {
-			return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
-		}
-	}
+	// }
+	// return response;
+	// } catch (CustomException e) {
+	// return new Response(e.getStatus(), e.getMessage(), null);
+	// } catch (Exception e) {
+	// return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server
+	// Error", e.getMessage());
+	// }
+	// }
 
 	/************************************************************************************************** */
-	@GetMapping("checkout")
-	public Response checkouta() {
+	// @GetMapping("checkout")
+	// public Response checkouta() {
 
-		List<Course> courses = cartRepository.findCartCourses(tokenUtil.getUserId());
-		for (Course course : courses) {
+	// List<Course> courses = cartRepository.findCartCourses(tokenUtil.getUserId());
+	// for (Course course : courses) {
 
-			courseRepository.enrollCourse(tokenUtil.getUserId(), course.getId());
-			course.incrementNumberOfEnrollments();
-		}
-		return new Response(HttpStatus.OK, "Checkout successfully", null);
+	// courseRepository.enrollCourse(tokenUtil.getUserId(), course.getId());
+	// course.incrementNumberOfEnrollments();
+	// }
+	// return new Response(HttpStatus.OK, "Checkout successfully", null);
 
-	}
+	// }
 
 	/************************************************************************************************** */
 	@GetMapping("/paypal")
@@ -123,11 +126,12 @@ public class PaypalController {
 	@PostMapping("/payment/create")
 	public RedirectView createPayment(@RequestBody ApplyCouponRequest applyCouponRequest) {
 		try {
-			System.out.println(applyCouponRequest);
+			// System.out.println(applyCouponRequest);
 			User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
 			if (user == null) {
 				return new RedirectView("/payment/error");
 			}
+
 			// if(courseService.ckeckCourseSubscribe(applyCouponRequest.getCourseId())) {
 			// return new RedirectView("/course/public/get-course/" +
 			// applyCouponRequest.getCourseId());
@@ -165,7 +169,7 @@ public class PaypalController {
 				}
 			}
 		} catch (PayPalRESTException e) {
-			log.error("Error occurred:: ", e);
+			return new RedirectView("/payment/error");
 		}
 		return new RedirectView("/payment/error");
 	}
@@ -179,7 +183,7 @@ public class PaypalController {
 	 */
 
 	@GetMapping("/payment/success")
-	public void paymentSuccess(HttpServletResponse response,
+	public RedirectView paymentSuccess(HttpServletResponse response,
 			@RequestParam("paymentId") String paymentId,
 			@RequestParam("PayerID") String payerId) throws Exception {
 		try {
@@ -187,11 +191,9 @@ public class PaypalController {
 			List<TempTransactionUser> tempTransactionUserList = tempTransactionUserRepository
 					.findByPaymentIdAndUserId(paymentId, tokenUtil.getUserId());
 					if(tempTransactionUserList.size()==0) {
-						response.sendRedirect("/payment/error");
-						return;
+						return new RedirectView("/payment/error");
 					}
 			
-
 			Payment payment = paypalService.executePayment(paymentId, payerId);
 			if (payment.getState().equals("approved")) {
 				for (TempTransactionUser tempTransactionUser : tempTransactionUserList) {
@@ -213,8 +215,7 @@ public class PaypalController {
 					tempTransactionUserRepository.save(tempTransactionUser);
 				}
 				
-			response.sendRedirect("/user/get-cart");
-									return;
+				return new RedirectView("/user/my-learning");
 			// 	tempTransactionUser.setConfirmed(true);
 
 			// 	tempTransactionUser.setConfirmDate(LocalDateTime.now());
@@ -236,11 +237,11 @@ public class PaypalController {
 			}
 			
 		} catch (CustomException e) {
-			log.error("Error occurred:: ", e);
+			return new RedirectView("/payment/error");
 		} catch (PayPalRESTException e) {
-			log.error("Error occurred:: ", e);
+			return new RedirectView("/payment/error");
 		}
-		response.sendRedirect("/payment/error");
+		return new RedirectView("/payment/error");
 
 	}
 
