@@ -62,7 +62,7 @@ public class Course {
 
         private Double price;
 
-        private BigDecimal duration;
+        private Integer duration;
 
         private String imageUrl;
         private String imageId;

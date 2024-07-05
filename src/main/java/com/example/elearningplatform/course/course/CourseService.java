@@ -5,10 +5,12 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -196,77 +198,64 @@ public class CourseService {
         /**************************************************************************************** */
         public Response getCourse(Integer courseId) {
                 try {
-                        Integer [] courseDuration = new Integer[1];
-                        courseDuration[0]=0;
-                        Integer []sectionDuration=new Integer[1];
-                        sectionDuration[0]=0;
-                        // System.out.println("courseId = " + courseId);
-                        // System.out.println("tokenUtil.getUserId() = " + tokenUtil.getUserId());
-                        Course course = courseRepository.findByCourseId(courseId)
-                                        .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
-                        if(!ckeckCourseSubscribe(courseId) && !course.isPublished()) {
-                                throw( new CustomException("Course not found", HttpStatus.NOT_FOUND));
-                        }
-                        CourseDto courseDto = new CourseDto(
-                                        course, ckeckCourseSubscribe(courseId),
-                                        courseRepository.findCourseInstructors(courseId),
-                                        courseRepository.findCourseCategory(courseId),
-                                        courseRepository.findCourseTags(courseId));
-                        List<SectionDto> sections = courseRepository.findCourseSections(courseId).stream()
-                                        .map(section -> new SectionDto(section)).toList();
-                        sections.forEach(section -> {
-                                section.setLessons(
-                                                sectionRepository.findSectionLessons(section.getId())
-                                                                .stream()
-                                                                .map(
-                                                                                // check if lesson is published return
-                                                                                // lesson dto else null
-                                                                                lesson -> {
-                                                                                        if (lesson.getDuration()==null) {
+            Integer[] courseDuration = new Integer[1];
+            courseDuration[0] = 0;
+            Integer[] sectionDuration = new Integer[1];
+            sectionDuration[0] = 0;
 
-                                                                                                try {
-                                                                                                        lesson.setDuration(
-                                                                                                                        getlessonDuration(
-                                                                                                                                        course.getGuid(),
-                                                                                                                                        lesson.getGuid(),
-                                                                                                                                        ApiKey));
-                                                                                                        lessonRepository.save(
-                                                                                                                        lesson);
-                                                                                                } catch (IOException e) {
+            Course course = courseRepository.findByCourseId(courseId)
+                            .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
 
-                                                                                                        e.printStackTrace();
-                                                                                                } catch (InterruptedException e) {
-
-                                                                                                        e.printStackTrace();
-                                                                                                }
-
-                                                                                        }
-                                                                                        sectionDuration[0] += lesson.getDuration();
-                                                                                        
-                                                                                        return new LessonDto(lesson);
-                                                                                }
-
-                                                                )
-                                                                .toList());
-                                section.setNumberOfLessons();
-                                courseDuration[0] += sectionDuration[0];
-                                section.setDuration(sectionDuration[0]);
-                                
-                                
-                        });
-                        courseDto.setSections(sections);
-                        courseDto.setTotalDuration(courseDuration[0]);
-
-                        return new Response(HttpStatus.OK, "Course fetched successfully", courseDto);
-
-                }
-                catch(CustomException e) {
-                        return new Response(e.getStatus(), e.getMessage(), null);
-                }
-                 catch (Exception e) {
-                        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
-                }
+        if (!ckeckCourseSubscribe(courseId) && !course.isPublished()) {
+                throw new CustomException("Course not found", HttpStatus.NOT_FOUND);
         }
+
+        CourseDto courseDto = new CourseDto(
+                        course, ckeckCourseSubscribe(courseId),
+                        courseRepository.findCourseInstructors(courseId),
+                        courseRepository.findCourseCategory(courseId),
+                        courseRepository.findCourseTags(courseId));
+
+        List<SectionDto> sections = courseRepository.findCourseSections(courseId).stream()
+                        .map(section -> new SectionDto(section))
+                        .sorted(Comparator.comparing(SectionDto::getId))
+                        .collect(Collectors.toList());
+
+        sections.forEach(section -> {
+                List<LessonDto> lessons = sectionRepository.findSectionLessons(section.getId()).stream()
+                                .map(lesson -> {
+                                        if (lesson.getDuration() == null) {
+                                                try {
+                                                        lesson.setDuration(
+                                                                        getlessonDuration(course.getGuid(),
+                                                                                        lesson.getGuid(), ApiKey));
+                                                        lessonRepository.save(lesson);
+                                                } catch (IOException | InterruptedException e) {
+                                                        e.printStackTrace();
+                                                }
+                                        }
+                                        sectionDuration[0] += lesson.getDuration();
+                                        return new LessonDto(lesson);
+                                })
+                                .sorted(Comparator.comparing(LessonDto::getId))
+                                .collect(Collectors.toList());
+
+                section.setLessons(lessons);
+                section.setNumberOfLessons();
+                courseDuration[0] += sectionDuration[0];
+                section.setDuration(sectionDuration[0]);
+        });
+
+        courseDto.setSections(sections);
+        courseDto.setDuration(courseDuration[0]);
+
+        return new Response(HttpStatus.OK, "Course fetched successfully", courseDto);
+} catch (CustomException e) {
+        return new Response(e.getStatus(), e.getMessage(), null);
+} catch (Exception e) {
+        return new Response(HttpStatus.NOT_FOUND, e.getMessage(), null);
+}
+}
 
         /**************************************************************************************** */
 

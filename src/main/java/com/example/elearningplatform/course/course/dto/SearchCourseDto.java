@@ -19,7 +19,7 @@ public class SearchCourseDto {
     private Integer numberOfEnrollments = 0;
     private String title;
     private Double price;
-    private BigDecimal duration;
+    private Integer duration;
     private String language;
     private String level;
     private Integer numberOfRatings;

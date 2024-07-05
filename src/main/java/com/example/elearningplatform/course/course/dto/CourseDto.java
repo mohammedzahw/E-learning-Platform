@@ -10,6 +10,7 @@ import com.example.elearningplatform.course.section.dto.SectionDto;
 import com.example.elearningplatform.course.tag.CourseTag;
 import com.example.elearningplatform.user.user.User;
 
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -26,7 +27,7 @@ public class CourseDto extends SearchCourseDto {
     private String whatYouWillLearn;
     private String prerequisite;
     private Boolean isSubscribed = false;
-    private Integer totalDuration;
+    // private Integer totalDuration;
 
     private List<SectionDto> sections = new ArrayList<>();
 
