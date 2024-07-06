@@ -22,6 +22,6 @@ public class CourseTag {
     @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @ToString.Exclude
     private Course course;
-    private String Tag;
+    private String tag;
 
 }

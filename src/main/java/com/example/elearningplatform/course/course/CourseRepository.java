@@ -96,7 +96,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
     /******************************************************************************************* */
     @Query("""
                     SELECT c FROM Course c
-             LEFT JOIN c.tags t WHERE lower(t.Tag) LIKE lower(concat('%', :tagName, '%')) and c.isPublished = true
+             LEFT JOIN c.tags t WHERE lower(t.tag) LIKE lower(concat('%', :tagName, '%')) and c.isPublished = true
                             """)
     Page<Course> findByTagName(String tagName, Pageable pageable);
 

@@ -366,7 +366,7 @@ public class CourseService {
         }
 
         /***************************************************************************************************************/
-
+        @Transactional
         public Response updateCourse(UpdateCourseRequest updateCourseRequest) {
                 try {
                         User owner = courseRepository.findOwner(updateCourseRequest.getCourseId()).orElseThrow(
@@ -395,20 +395,20 @@ public class CourseService {
 
                         });
                         course.setCategories(categories);
+                        courseRepository.save(course);
+                        courseTagRepository.deleteByCourseId(course.getId());
                         Set<String> tags = new HashSet<>(updateCourseRequest.getTags());
-                        Set<CourseTag> courseTags = new HashSet<>();
-
+                        
                         tags.forEach(tag -> {
-                                CourseTag tage = new CourseTag();
+                                CourseTag tage = courseTagRepository.findByTagAndCourseId(tag, course.getId())
+                                                .orElse(new CourseTag());
                                 tage.setTag(tag);
                                 tage.setCourse(course);
-                                courseTags.add(tage);
+                                courseTagRepository.save(tage);
 
                         });
-                        courseTagRepository.saveAll(courseTags);
-                        courseRepository.save(course);
 
-                        courseRepository.save(course);
+                        // courseRepository.save(course);
                         return new Response(HttpStatus.OK, "Course updated successfully",
                                         new SearchCourseDto(course,
                                                         courseRepository.findCourseInstructors(course.getId()),
