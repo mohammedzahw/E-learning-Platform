@@ -126,12 +126,12 @@ public class PaypalService {
 
             List<ApplyCouponRequest> applyCouponRequestList = applyCouponRequest.getApplyCouponRequestList();
             Double price = 0.0;
-            for (ApplyCouponRequest coupon : applyCouponRequestList) {
-                  Response response = couponService.applyCoupon(coupon);
+            for (ApplyCouponRequest request : applyCouponRequestList) {
+                  Response response = couponService.applyCoupon(request);
                   if (response.getStatus() != HttpStatus.OK) {
                         throw new PayPalRESTException(response.getData().toString());
                   }
-                  price += (Double) couponService.applyCoupon(coupon).getData();
+                  price += (Double) response.getData();
             }
 
             Amount amount = new Amount();
@@ -169,7 +169,7 @@ public class PaypalService {
                   tempTransactionUser.setCourseId(applyCouponRequest2.getCourseId());
                   tempTransactionUser.setUserId(tokenUtil.getUserId());
                   // tempTransactionUser.setUserId(tokenUtil.getUserId());
-                  tempTransactionUser.setCouponId(coupon.getId());
+                  if (coupon != null) tempTransactionUser.setCouponId(coupon.getId());
                   tempTransactionUser.setPrice((int) (price * 100));
                   tempTransactionUser.setConfirmed(false);
 
