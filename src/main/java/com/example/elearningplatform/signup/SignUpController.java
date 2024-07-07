@@ -20,6 +20,7 @@ import com.example.elearningplatform.validator.Validator;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -79,10 +80,11 @@ public class SignUpController {
 
     @GetMapping("/verifyEmail/{token}")
 
-    public Response verifyEmail(@PathVariable("token") String verficationToken) throws SQLException, IOException {
+    public void verifyEmail(@PathVariable("token") String verficationToken, HttpServletResponse response)
+            throws SQLException, IOException {
         // System.out.println(verficationToken);
 
-        return signUpService.verifyEmail(verficationToken);
+        signUpService.verifyEmail(verficationToken, response);
     }
 
 }

@@ -18,7 +18,6 @@ import com.example.elearningplatform.email.EmailService;
 import com.example.elearningplatform.login.oAuth2.OAuth2UserDetails;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-
 import com.example.elearningplatform.user.role.Role;
 import com.example.elearningplatform.user.role.RoleRepository;
 import com.example.elearningplatform.user.user.User;
@@ -26,6 +25,7 @@ import com.example.elearningplatform.user.user.UserRepository;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -62,6 +62,12 @@ public class SignUpService {
                     .phoneNumber(request.getPhoneNumber()).registrationDate(LocalDateTime.now()).build();
             userRepository.save(user);
             Role role = roleRepository.findByRole("ROLE_USER").orElse(null);
+            if (role == null) {
+
+                role = new Role();
+                role.setRole("ROLE_USER");
+                roleRepository.save(role);
+            }
             user.setRoles(List.of(role));
             userRepository.save(user);
             // Address address =
@@ -80,25 +86,30 @@ public class SignUpService {
 
     /******************************************************************************************************************/
 
-    public Response verifyEmail(String token) throws SQLException, IOException {
+    public void verifyEmail(String token,HttpServletResponse response) throws SQLException, IOException {
 
         if (tokenUtil.isTokenExpired(token)) {
-            return new Response(HttpStatus.BAD_REQUEST, "Expired token!", null);
+            response.sendRedirect("https://zakker.vercel.app/login");
+            return;
+            // return new Response(HttpStatus.BAD_REQUEST, "Expired token!", null);
         }
 
         User user = userRepository.findByEmail(tokenUtil.getUserName(token)).orElse(null);
         if (user == null) {
-            return new Response(HttpStatus.NOT_FOUND, "User not found!", null);
+            response.sendRedirect("https://zakker.vercel.app/signup");
+            return;
         }
 
-        if (user.isEnabled()) {
-            return new Response(HttpStatus.BAD_REQUEST, "Email is Already verified!", null);
-        }
+        // if (user.isEnabled()) {
+        //     // return new Response(HttpStatus.BAD_REQUEST, "Email is Already verified!", null);
+        //     response.sendRedirect("https://zakker.vercel.app/login");
+
+        // }
 
         user.setEnabled(true);
         userRepository.save(user);
 
-        return new Response(HttpStatus.OK, "Email verified successfully! Now you can login", null);
+        response.sendRedirect("https://zakker.vercel.app/login");
     }
 
     /******************************************************************************************************************/
