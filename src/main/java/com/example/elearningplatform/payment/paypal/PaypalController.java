@@ -71,46 +71,45 @@ public class PaypalController {
 	/************************************
 	 * CREATE PAYMENT ****************************************
 	 */
-	// @GetMapping("/enroll-course")
-	// public Response enrollCourse(@RequestBody ApplyCouponRequest coupon) {
-	// try {
-	// Response response = couponService.applyCoupon(coupon);
-	// if (response.getStatus() == HttpStatus.OK) {
-	// User user = userRepository.findById(tokenUtil.getUserId())
-	// .orElseThrow(() -> new CustomException("User not found",
-	// HttpStatus.NOT_FOUND));
-	// Course course = courseRepository.findById(coupon.getCourseId())
-	// .orElseThrow(() -> new CustomException("Course not found",
-	// HttpStatus.NOT_FOUND));
-	// courseRepository.enrollCourse(user.getId(), course.getId());
+	@GetMapping("/enroll-course")
+	public Response enrollCourse(@RequestBody ApplyCouponRequest coupon) {
+	try {
+	Response response = couponService.applyCoupon(coupon);
+	if (response.getStatus() == HttpStatus.OK) {
+	User user = userRepository.findById(tokenUtil.getUserId())
+	.orElseThrow(() -> new CustomException("User not found",
+	HttpStatus.NOT_FOUND));
+	Course course = courseRepository.findById(coupon.getCourseId())
+	.orElseThrow(() -> new CustomException("Course not found",
+	HttpStatus.NOT_FOUND));
+	courseRepository.enrollCourse(user.getId(), course.getId());
 
-	// course.incrementNumberOfEnrollments();
+	course.incrementNumberOfEnrollments();
 
-	// return new Response(HttpStatus.OK, "Course enrolled successfully", null);
+	return new Response(HttpStatus.OK, "Course enrolled successfully", null);
 
-	// }
-	// return response;
-	// } catch (CustomException e) {
-	// return new Response(e.getStatus(), e.getMessage(), null);
-	// } catch (Exception e) {
-	// return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server
-	// Error", e.getMessage());
-	// }
-	// }
+	}
+	return response;
+	} catch (CustomException e) {
+	return new Response(e.getStatus(), e.getMessage(), null);
+	} catch (Exception e) {
+	return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
+	}
+	}
 
 	/************************************************************************************************** */
-	// @GetMapping("checkout")
-	// public Response checkouta() {
+	@GetMapping("checkout")
+	public Response checkouta() {
 
-	// List<Course> courses = cartRepository.findCartCourses(tokenUtil.getUserId());
-	// for (Course course : courses) {
+		List<Course> courses = cartRepository.findCartCourses(tokenUtil.getUserId());
+		for (Course course : courses) {
 
-	// courseRepository.enrollCourse(tokenUtil.getUserId(), course.getId());
-	// course.incrementNumberOfEnrollments();
-	// }
-	// return new Response(HttpStatus.OK, "Checkout successfully", null);
+		courseRepository.enrollCourse(tokenUtil.getUserId(), course.getId());
+		course.incrementNumberOfEnrollments();
+	}
+	return new Response(HttpStatus.OK, "Checkout successfully", null);
 
-	// }
+}
 
 	/************************************************************************************************** */
 	@GetMapping("/paypal")

@@ -348,7 +348,7 @@ public class CourseService {
                                // courseTagRepository.save(tage);
 
                         });
-                        // // courseRepository.save(course);
+                        // courseRepository.save(course);
                         courseTagRepository.saveAll(courseTags);
 
                         return new Response(HttpStatus.OK, "Course created successfully",
@@ -366,7 +366,7 @@ public class CourseService {
         }
 
         /***************************************************************************************************************/
-        @Transactional
+
         public Response updateCourse(UpdateCourseRequest updateCourseRequest) {
                 try {
                         User owner = courseRepository.findOwner(updateCourseRequest.getCourseId()).orElseThrow(
