@@ -121,7 +121,7 @@ public class PaypalService {
 
             String successUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
-                        + "/payment/success/{token}";
+                        + "/payment/success/"+token;
             String cancelUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
                         + "/payment/cancel";

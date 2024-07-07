@@ -171,6 +171,7 @@ public class PaypalController {
 			Payment payment = paypalService.checkout( token);
 			for (Links links : payment.getLinks()) {
 				if (links.getRel().equals("approval_url")) {
+					
 					return new RedirectView(links.getHref());
 				}
 			}
