@@ -83,6 +83,9 @@ public class PaypalController {
 	.orElseThrow(() -> new CustomException("Course not found",
 	HttpStatus.NOT_FOUND));
 	courseRepository.enrollCourse(user.getId(), course.getId());
+		
+
+	cartRepository.removeFromCart(user.getId(), course.getId());
 
 	course.incrementNumberOfEnrollments();
 
@@ -105,6 +108,7 @@ public class PaypalController {
 		for (Course course : courses) {
 
 		courseRepository.enrollCourse(tokenUtil.getUserId(), course.getId());
+		cartRepository.removeFromCart(tokenUtil.getUserId(), course.getId());
 		course.incrementNumberOfEnrollments();
 	}
 	return new Response(HttpStatus.OK, "Checkout successfully", null);
@@ -123,13 +127,16 @@ public class PaypalController {
 	/************************************************************************************************** */
 
 	@PostMapping("/payment/create")
-	public RedirectView createPayment(@RequestBody ApplyCouponRequest applyCouponRequest) {
+	public RedirectView createPayment(@RequestBody ApplyCouponRequest applyCouponRequest,HttpServletResponse response) {
 		try {
 			// System.out.println(applyCouponRequest);
 			User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
 			if (user == null) {
 				return new RedirectView("/payment/error");
 			}
+
+			if(courseService.ckeckCourseSubscribe(applyCouponRequest.getCourseId())) 
+				return new RedirectView("/payment/error");
 
 			// if(courseService.ckeckCourseSubscribe(applyCouponRequest.getCourseId())) {
 			// return new RedirectView("/course/public/get-course/" +
@@ -142,6 +149,7 @@ public class PaypalController {
 				}
 			}
 		} catch (PayPalRESTException e) {
+			log.error(e.getMessage());
 
 			return new RedirectView("/payment/error");
 		}
@@ -210,6 +218,7 @@ public class PaypalController {
 									"Course not found", HttpStatus.NOT_FOUND));
 
 					courseRepository.enrollCourse(tempTransactionUser.getUserId(), tempTransactionUser.getCourseId());
+					cartRepository.removeFromCart(tokenUtil.getUserId(), course.getId());
 					course.incrementNumberOfEnrollments();
 					tempTransactionUserRepository.save(tempTransactionUser);
 				}

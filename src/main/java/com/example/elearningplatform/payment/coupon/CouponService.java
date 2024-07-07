@@ -67,7 +67,7 @@ public class CouponService {
         try {
             Course course = courseRepository.findById(applyCouponRequest.getCourseId())
                     .orElseThrow(() -> new Exception("course not found"));
-            if (applyCouponRequest.getCouponCode().isEmpty()) {
+            if (applyCouponRequest.getCouponCode().isEmpty() || applyCouponRequest.getCouponCode() == null) {
                 return new Response(HttpStatus.OK, "no coupon applied", course.getPrice());
             }
             Integer courseId = applyCouponRequest.getCourseId();

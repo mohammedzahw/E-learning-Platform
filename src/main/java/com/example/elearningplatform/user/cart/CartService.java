@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.course.CourseRepository;
+import com.example.elearningplatform.course.course.CourseService;
 import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
@@ -27,7 +28,8 @@ public class CartService {
     private CourseRepository courseRepository;
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private CourseService courseService;
     /************************************************************************************************************/
 
     public Response deleteFromCart(Integer courseId) {
@@ -74,6 +76,8 @@ public class CartService {
             if (course.getOwner().getId().equals(tokenUtil.getUserId())) {
                 return new Response(HttpStatus.OK, "You cannot add your own course to cart", null);
             }
+            if(courseService.ckeckCourseSubscribe(courseId))
+                return new Response(HttpStatus.OK, "Course already enrolled", null);
 
             cartRepository.addToCart(tokenUtil.getUserId(), courseId);
             return new Response(HttpStatus.OK, "Course added to cart", null);
