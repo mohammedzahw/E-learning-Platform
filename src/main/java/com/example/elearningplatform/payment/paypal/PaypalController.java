@@ -132,6 +132,7 @@ public class PaypalController {
 			// System.out.println(applyCouponRequest);
 			User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
 			if (user == null) {
+				log.error("User not found");
 				return new RedirectView("/payment/error");
 			}
 
@@ -158,27 +159,24 @@ public class PaypalController {
 
 	/***************************************************************************************** */
 	/************************************************************************************************** */
-	@PostMapping("/payment/checkout")
-	public RedirectView checkout(@RequestBody ApplyCouponRequestList applyCouponRequest) {
+	@GetMapping("/payment/checkout")
+	public RedirectView checkout() {
 		try {
 			User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
-			if (user == null || user.getPaypalEmail() == null) {
-				return new RedirectView("/payment/error");
+			if (user == null) {
+				return new RedirectView("https://zakker.vercel.app/cart");
 			}
-			// if(courseService.ckeckCourseSubscribe(applyCouponRequest.getCourseId())) {
-			// return new RedirectView("/course/public/get-course/" +
-			// applyCouponRequest.getCourseId());
-			// }
-			Payment payment = paypalService.checkout(applyCouponRequest);
+			Payment payment = paypalService.checkout();
 			for (Links links : payment.getLinks()) {
 				if (links.getRel().equals("approval_url")) {
 					return new RedirectView(links.getHref());
 				}
 			}
 		} catch (PayPalRESTException e) {
-			return new RedirectView("/payment/error");
+			log.error(e.getMessage());
+			return new RedirectView("https://zakker.vercel.app/cart");
 		}
-		return new RedirectView("/payment/error");
+		return new RedirectView("https://zakker.vercel.app/cart");
 	}
 
 	/*********************************************
@@ -198,7 +196,8 @@ public class PaypalController {
 			List<TempTransactionUser> tempTransactionUserList = tempTransactionUserRepository
 					.findByPaymentIdAndUserId(paymentId, tokenUtil.getUserId());
 					if(tempTransactionUserList.size()==0) {
-						return new RedirectView("/payment/error");
+						log.error("No transaction found");
+						return new RedirectView("https://zakker.vercel.app/cart");
 					}
 			
 			Payment payment = paypalService.executePayment(paymentId, payerId);
@@ -223,7 +222,7 @@ public class PaypalController {
 					tempTransactionUserRepository.save(tempTransactionUser);
 				}
 				
-				return new RedirectView("/user/my-learning");
+				return new RedirectView("https://zakker.vercel.app/mycourses");
 			// 	tempTransactionUser.setConfirmed(true);
 
 			// 	tempTransactionUser.setConfirmDate(LocalDateTime.now());
@@ -245,11 +244,14 @@ public class PaypalController {
 			}
 			
 		} catch (CustomException e) {
-			return new RedirectView("/payment/error");
+			log.error(e.getMessage());
+			return new RedirectView("https://zakker.vercel.app/cart");
 		} catch (PayPalRESTException e) {
-			return new RedirectView("/payment/error");
+
+			log.error(e.getMessage());
+			return new RedirectView("https://zakker.vercel.app/cart");
 		}
-		return new RedirectView("/payment/error");
+		return new RedirectView("https://zakker.vercel.app/cart");
 
 	}
 

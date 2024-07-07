@@ -79,6 +79,9 @@ public class CouponService {
             }
             Double newPrice = course.getPrice()
                     - (couponDB.getDiscount() / 100.0) * course.getPrice();
+                    
+            // decrementCoupon( couponDB.getId());
+            
             return new Response(HttpStatus.OK, "coupon applied successfully", newPrice);
         } catch (Exception e) {
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e.getMessage());
