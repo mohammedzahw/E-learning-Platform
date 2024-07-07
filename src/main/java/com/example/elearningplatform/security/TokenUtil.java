@@ -59,6 +59,17 @@ UserRepository userRepository;
             return null;
         }
     }
+    public Integer tokenGetID(String token) {
+        if(token == null) return null;
+      
+        
+        try {
+            Claims claims = getClaims(token);
+            return (Integer) claims.get("userId");
+        } catch (Exception ex) {
+            return null;
+        }
+    }
 
     public Integer getUserId() {
 

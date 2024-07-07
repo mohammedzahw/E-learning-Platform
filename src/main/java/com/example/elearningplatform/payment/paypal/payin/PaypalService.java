@@ -117,11 +117,11 @@ public class PaypalService {
 }
 
       /**************************************************** */
-      public Payment checkout() throws PayPalRESTException {
+      public Payment checkout(String token) throws PayPalRESTException {
 
             String successUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
-                        + "/payment/success";
+                        + "/payment/success/{token}";
             String cancelUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
                         + "/payment/cancel";
@@ -129,7 +129,7 @@ public class PaypalService {
             // List<ApplyCouponRequest> applyCouponRequestList =
             // applyCouponRequest.getApplyCouponRequestList();
 
-            List<Course> courses = cartRepository.findCartCourses(tokenUtil.getUserId());
+            List<Course> courses = cartRepository.findCartCourses(tokenUtil.tokenGetID(token));
             Double price = 0.0;
             for (Course course : courses) {
                   // Response response = couponService.applyCoupon(request);
@@ -173,7 +173,7 @@ public class PaypalService {
 
                   TempTransactionUser tempTransactionUser = new TempTransactionUser();
                   // tempTransactionUser.setCourseId(applyCouponRequest2.getCourseId());
-                  tempTransactionUser.setUserId(tokenUtil.getUserId());
+                  tempTransactionUser.setUserId(tokenUtil.tokenGetID(token));
                   // tempTransactionUser.setUserId(tokenUtil.getUserId());
                   // if (coupon != null) tempTransactionUser.setCouponId(coupon.getId());
                   tempTransactionUser.setPrice((int) (price * 100));

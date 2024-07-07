@@ -83,7 +83,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
                         "/api/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                        "/oauth2/**","/category/all/**","/user/get-all-users","/paypal/**",
+                        "/oauth2/**","/category/all/**","/user/get-all-users","/paypal/**","/payment/checkout/**",
                     "/user/get-user/**", "/check-token/**", "/verifyEmail/**","/change-password/**", "/signup/**", "/login/**",
                         "/forget-password/**", "/course/public/**",
                         "/review/get-reviews/**")

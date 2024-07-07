@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +21,6 @@ import com.example.elearningplatform.course.course.CourseService;
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.payment.coupon.CouponService;
 import com.example.elearningplatform.payment.coupon.dto.ApplyCouponRequest;
-import com.example.elearningplatform.payment.coupon.dto.ApplyCouponRequestList;
 import com.example.elearningplatform.payment.paypal.payin.PaypalService;
 import com.example.elearningplatform.payment.paypal.transactions.TempTransactionUser;
 import com.example.elearningplatform.payment.paypal.transactions.TempTransactionUserRepository;
@@ -43,7 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Data
 @Slf4j
-@SecurityRequirement(name = "bearerAuth")
+
 @Transactional
 public class PaypalController {
 
@@ -71,6 +71,7 @@ public class PaypalController {
 	/************************************
 	 * CREATE PAYMENT ****************************************
 	 */
+	@SecurityRequirement(name = "bearerAuth")
 	@GetMapping("/enroll-course")
 	public Response enrollCourse(@RequestBody ApplyCouponRequest coupon) {
 	try {
@@ -101,6 +102,7 @@ public class PaypalController {
 	}
 
 	/************************************************************************************************** */
+	@SecurityRequirement(name = "bearerAuth")
 	@GetMapping("checkout")
 	public Response checkouta() {
 
@@ -116,13 +118,13 @@ public class PaypalController {
 }
 
 	/************************************************************************************************** */
-	@GetMapping("/paypal")
-	public ModelAndView home() {
-		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("paypal");
-		modelAndView.addObject("applyCouponRequest", new ApplyCouponRequest());
-		return modelAndView;
-	}
+	// @GetMapping("/paypal")
+	// public ModelAndView home() {
+	// 	ModelAndView modelAndView = new ModelAndView();
+	// 	modelAndView.setViewName("paypal");
+	// 	modelAndView.addObject("applyCouponRequest", new ApplyCouponRequest());
+	// 	return modelAndView;
+	// }
 
 	/************************************************************************************************** */
 
@@ -159,14 +161,14 @@ public class PaypalController {
 
 	/***************************************************************************************** */
 	/************************************************************************************************** */
-	@GetMapping("/payment/checkout")
-	public RedirectView checkout() {
+	@GetMapping("/payment/checkout/{token}")
+	public RedirectView checkout(@PathVariable("token") String token) {
 		try {
-			User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
+			User user = userRepository.findById(tokenUtil.tokenGetID(token)).orElse(null);
 			if (user == null) {
 				return new RedirectView("https://zakker.vercel.app/cart");
 			}
-			Payment payment = paypalService.checkout();
+			Payment payment = paypalService.checkout( token);
 			for (Links links : payment.getLinks()) {
 				if (links.getRel().equals("approval_url")) {
 					return new RedirectView(links.getHref());
@@ -187,14 +189,14 @@ public class PaypalController {
 	 *                   **********************************************************************
 	 */
 
-	@GetMapping("/payment/success")
+	@GetMapping("/payment/success/{token}")
 	public RedirectView paymentSuccess(HttpServletResponse response,
 			@RequestParam("paymentId") String paymentId,
-			@RequestParam("PayerID") String payerId) throws Exception {
+			@RequestParam("PayerID") String payerId, @PathVariable("token") String token) throws Exception {
 		try {
 
 			List<TempTransactionUser> tempTransactionUserList = tempTransactionUserRepository
-					.findByPaymentIdAndUserId(paymentId, tokenUtil.getUserId());
+					.findByPaymentIdAndUserId(paymentId, tokenUtil.tokenGetID(token));
 					if(tempTransactionUserList.size()==0) {
 						log.error("No transaction found");
 						return new RedirectView("https://zakker.vercel.app/cart");
@@ -217,7 +219,7 @@ public class PaypalController {
 									"Course not found", HttpStatus.NOT_FOUND));
 
 					courseRepository.enrollCourse(tempTransactionUser.getUserId(), tempTransactionUser.getCourseId());
-					cartRepository.removeFromCart(tokenUtil.getUserId(), course.getId());
+					cartRepository.removeFromCart(tokenUtil.tokenGetID(token), course.getId());
 					course.incrementNumberOfEnrollments();
 					tempTransactionUserRepository.save(tempTransactionUser);
 				}
@@ -259,8 +261,8 @@ public class PaypalController {
 	 * CANCEL PAYMENT ****************************************
 	 */
 	@GetMapping("/payment/cancel")
-	public Response paymentCancel() throws IOException {
-		return new Response(HttpStatus.BAD_REQUEST, "Payment cancelled", null);
+	public RedirectView paymentCancel() throws IOException {
+		return new RedirectView("https://zakker.vercel.app/cart");
 
 	}
 
