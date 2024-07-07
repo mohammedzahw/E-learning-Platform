@@ -54,18 +54,6 @@
 
 
 //     public void createData() {
-//         Category category = new Category();
-//         category.setName("Programming");
-//         category.setDescription("Programming");
-//         categoryRepository.save(category);
-//         Category category1 = new Category();
-//         category1.setName("Design");
-//         category1.setDescription("Design");
-//         categoryRepository.save(category1);
-//         Category category2 = new Category();
-//         category2.setName("Marketing");
-//         category2.setDescription("Marketing");
-//         categoryRepository.save(category2);
 
 //         for (int i = 1; i <= 5; i++) {
 //             Review review = new Review();

@@ -395,6 +395,7 @@ public class CourseService {
 
                         });
                         course.setCategories(categories);
+                        course.setPrice(updateCourseRequest.getPrice());
                         courseRepository.save(course);
                         courseTagRepository.deleteByCourseId(course.getId());
                         Set<String> tags = new HashSet<>(updateCourseRequest.getTags());

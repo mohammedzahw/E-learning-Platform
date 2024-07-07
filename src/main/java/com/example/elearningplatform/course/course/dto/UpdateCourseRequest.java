@@ -21,6 +21,7 @@ public class UpdateCourseRequest {
     private String language;
     @NotBlank(message = "Level cannot be empty")
     private String level;
+    private Double price;
     private List<Integer> categories;
     private List<String> tags;
 
