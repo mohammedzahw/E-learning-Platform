@@ -3,7 +3,7 @@ package com.example.elearningplatform.payment.paypal;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.Iterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.example.elearningplatform.course.course.Course;
@@ -168,7 +167,29 @@ public class PaypalController {
 			if (user == null) {
 				return new RedirectView("https://zakker.vercel.app/cart");
 			}
-			Payment payment = paypalService.checkout( token);
+			Double price = 0.0;
+			List<Course> courses = cartRepository.findCartCourses(tokenUtil.tokenGetID(token));
+			Iterator<Course> iterator = courses.iterator();
+			while (iterator.hasNext()) {
+				Course course = iterator.next();
+				// System.out.println(course.getPrice());
+
+				if (course.getPrice().equals(0.0)) {
+					// System.out.println("zero");
+					courseRepository.enrollCourse(tokenUtil.tokenGetID(token), course.getId());
+					cartRepository.removeFromCart(tokenUtil.tokenGetID(token), course.getId());
+					course.incrementNumberOfEnrollments();
+					iterator.remove(); // Use iterator's remove method to safely remove the current element
+					courseRepository.save(course);
+				} else {
+					price += course.getPrice();
+				}
+			}
+
+			if (price == 0.0) {
+				return new RedirectView("https://zakker.vercel.app/mycourses");
+			}
+			Payment payment = paypalService.checkout(token, courses, price);
 			for (Links links : payment.getLinks()) {
 				if (links.getRel().equals("approval_url")) {
 					
@@ -195,6 +216,11 @@ public class PaypalController {
 			@RequestParam("paymentId") String paymentId,
 			@RequestParam("PayerID") String payerId, @PathVariable("token") String token) throws Exception {
 		try {
+			Integer userId = tokenUtil.tokenGetID(token);
+			System.out.println("userId " + userId);
+			// System.out.println("token " + token);
+			System.out.println("paymentId " + paymentId);
+			System.out.println("PayerID " + payerId);
 
 			List<TempTransactionUser> tempTransactionUserList = tempTransactionUserRepository
 					.findByPaymentIdAndUserId(paymentId, tokenUtil.tokenGetID(token));
@@ -206,14 +232,15 @@ public class PaypalController {
 			Payment payment = paypalService.executePayment(paymentId, payerId);
 			if (payment.getState().equals("approved")) {
 				for (TempTransactionUser tempTransactionUser : tempTransactionUserList) {
+					System.out.println(tempTransactionUser);
 					tempTransactionUser.setPaymentId(paymentId);
 					tempTransactionUser.setConfirmed(true);
 
 					tempTransactionUser.setConfirmDate(LocalDateTime.now());
-					if (tempTransactionUser.getCouponId() != null) {
+					// if (tempTransactionUser.getCouponId() != null) {
 
-						couponService.decrementCoupon(tempTransactionUser.getCouponId());
-					}
+					// couponService.decrementCoupon(tempTransactionUser.getCouponId());
+					// }
 
 					Course course = courseRepository.findById(tempTransactionUser.getCourseId())
 							.orElseThrow(() -> new CustomException(
@@ -222,6 +249,7 @@ public class PaypalController {
 					courseRepository.enrollCourse(tempTransactionUser.getUserId(), tempTransactionUser.getCourseId());
 					cartRepository.removeFromCart(tokenUtil.tokenGetID(token), course.getId());
 					course.incrementNumberOfEnrollments();
+
 					tempTransactionUserRepository.save(tempTransactionUser);
 				}
 				
