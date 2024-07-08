@@ -5,17 +5,14 @@ import java.util.List;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.example.elearningplatform.course.course.Course;
-import com.example.elearningplatform.payment.coupon.Coupon;
+import com.example.elearningplatform.course.course.CourseRepository;
 import com.example.elearningplatform.payment.coupon.CouponRepository;
 import com.example.elearningplatform.payment.coupon.CouponService;
-import com.example.elearningplatform.payment.coupon.dto.ApplyCouponRequest;
 import com.example.elearningplatform.payment.paypal.transactions.TempTransactionUser;
 import com.example.elearningplatform.payment.paypal.transactions.TempTransactionUserRepository;
-import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.user.cart.CartRepository;
 import com.paypal.api.payments.Amount;
@@ -48,24 +45,23 @@ public class PaypalService {
       private TokenUtil tokenUtil;
       @Autowired
       private CartRepository cartRepository;
+      @Autowired
+      private CourseRepository courseRepository;
 
 
       /****************************************************************************************/
-      public Payment createPayment(ApplyCouponRequest applyCouponRequest) throws PayPalRESTException {
+      public Payment createPayment(Course course, String token) throws PayPalRESTException {
          
            
             String successUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
-                        + "/payment/success";
+                        + "/payment/create/success/" + token + "/" + course.getId();
             String cancelUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
                         + "/payment/cancel";
+            Integer userId = tokenUtil.tokenGetID(token);
 
-            Response response = couponService.applyCoupon(applyCouponRequest);
-            if (response.getStatus() != HttpStatus.OK) {
-                  throw new PayPalRESTException(response.getData().toString());
-            }
-            Double price = (Double) couponService.applyCoupon(applyCouponRequest).getData();
+            Double price = course.getPrice();
 
             Amount amount = new Amount();
             amount.setCurrency("USD");
@@ -92,17 +88,12 @@ public class PaypalService {
             payment.setTransactions(transactions);
             payment.setRedirectUrls(redirectUrls);
 
-            Coupon coupon = couponRepository
-                        .findByCodeAndCourseId(applyCouponRequest.getCouponCode(), applyCouponRequest.getCourseId())
-                        .orElse(null);
-
             payment = payment.create(apiContext);
 
             TempTransactionUser tempTransactionUser = new TempTransactionUser();
-            tempTransactionUser.setCourseId(applyCouponRequest.getCourseId());
-            tempTransactionUser.setUserId(tokenUtil.getUserId());
-            if (coupon != null)
-                  tempTransactionUser.setCouponId(coupon.getId());
+            tempTransactionUser.setCourseId(course.getId());
+            tempTransactionUser.setUserId(userId);
+   
             tempTransactionUser.setPrice(((int) (price * 100)));
             tempTransactionUser.setConfirmed(false);
       
@@ -121,23 +112,10 @@ public class PaypalService {
 
             String successUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
-                        + "/payment/success/"+token;
+                        + "/payment/checkout/success/" + token;
             String cancelUrl = "http://" + request.getServerName() + ":" + request.getServerPort()
                         + request.getContextPath()
                         + "/payment/cancel";
-
-            // List<ApplyCouponRequest> applyCouponRequestList =
-            // applyCouponRequest.getApplyCouponRequestList();
-
-            // List<Course> courses = cartRepository.findCartCourses(tokenUtil.tokenGetID(token));
-            // Double price = 0.0;
-            // for (Course course : courses) {
-            //       // Response response = couponService.applyCoupon(request);
-            //       // if (response.getStatus() != HttpStatus.OK) {
-            //       // throw new PayPalRESTException(response.getData().toString());
-            //       // }
-            //       price += course.getPrice();
-            // }
             
             Amount amount = new Amount();
             amount.setCurrency("USD");
@@ -165,17 +143,11 @@ public class PaypalService {
 
             payment = payment.create(apiContext);
 
-            // for (ApplyCouponRequest applyCouponRequest2 : applyCouponRequestList) {
-            // Coupon coupon = couponRepository
-            // .findByCodeAndCourseId(applyCouponRequest2.getCouponCode(),
-            // applyCouponRequest2.getCourseId())
-            // .orElse(null);
             for (Course course : courses) {
                   TempTransactionUser tempTransactionUser = new TempTransactionUser();
                   tempTransactionUser.setCourseId(course.getId());
                   tempTransactionUser.setUserId(tokenUtil.tokenGetID(token));
-                  // tempTransactionUser.setUserId(tokenUtil.getUserId());
-                  // if (coupon != null) tempTransactionUser.setCouponId(coupon.getId());
+
                   tempTransactionUser.setPrice((int) (course.getPrice() * 100));
                   tempTransactionUser.setConfirmed(false);
 

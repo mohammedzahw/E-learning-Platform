@@ -2,13 +2,13 @@ package com.example.elearningplatform.payment.paypal;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +23,8 @@ import com.example.elearningplatform.payment.coupon.dto.ApplyCouponRequest;
 import com.example.elearningplatform.payment.paypal.payin.PaypalService;
 import com.example.elearningplatform.payment.paypal.transactions.TempTransactionUser;
 import com.example.elearningplatform.payment.paypal.transactions.TempTransactionUserRepository;
+import com.example.elearningplatform.payment.transaction.Transaction;
+import com.example.elearningplatform.payment.transaction.TransactionRepository;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
 import com.example.elearningplatform.user.cart.CartRepository;
@@ -64,6 +66,8 @@ public class PaypalController {
 	private CouponService couponService;
 	@Autowired
 	private CartRepository cartRepository;
+	@Autowired
+	private TransactionRepository transactionRepository;
 
 	private final String prefixHttp = "http://";
 
@@ -117,49 +121,6 @@ public class PaypalController {
 }
 
 	/************************************************************************************************** */
-	// @GetMapping("/paypal")
-	// public ModelAndView home() {
-	// 	ModelAndView modelAndView = new ModelAndView();
-	// 	modelAndView.setViewName("paypal");
-	// 	modelAndView.addObject("applyCouponRequest", new ApplyCouponRequest());
-	// 	return modelAndView;
-	// }
-
-	/************************************************************************************************** */
-
-	@PostMapping("/payment/create")
-	public RedirectView createPayment(@RequestBody ApplyCouponRequest applyCouponRequest,HttpServletResponse response) {
-		try {
-			// System.out.println(applyCouponRequest);
-			User user = userRepository.findById(tokenUtil.getUserId()).orElse(null);
-			if (user == null) {
-				log.error("User not found");
-				return new RedirectView("/payment/error");
-			}
-
-			if(courseService.ckeckCourseSubscribe(applyCouponRequest.getCourseId())) 
-				return new RedirectView("/payment/error");
-
-			// if(courseService.ckeckCourseSubscribe(applyCouponRequest.getCourseId())) {
-			// return new RedirectView("/course/public/get-course/" +
-			// applyCouponRequest.getCourseId());
-			// }
-			Payment payment = paypalService.createPayment(applyCouponRequest);
-			for (Links links : payment.getLinks()) {
-				if (links.getRel().equals("approval_url")) {
-					return new RedirectView(links.getHref());
-				}
-			}
-		} catch (PayPalRESTException e) {
-			log.error(e.getMessage());
-
-			return new RedirectView("/payment/error");
-		}
-		return new RedirectView("/payment/error");
-	}
-
-	/***************************************************************************************** */
-	/************************************************************************************************** */
 	@GetMapping("/payment/checkout/{token}")
 	public RedirectView checkout(@PathVariable("token") String token) {
 		try {
@@ -196,37 +157,91 @@ public class PaypalController {
 					return new RedirectView(links.getHref());
 				}
 			}
+			return new RedirectView("https://zakker.vercel.app/cart");
 		} catch (PayPalRESTException e) {
 			log.error(e.getMessage());
 			return new RedirectView("https://zakker.vercel.app/cart");
 		}
-		return new RedirectView("https://zakker.vercel.app/cart");
+
 	}
 
-	/*********************************************
-	 * SUCCESS
-	 * *
-	 * 
-	 * @throws Exception
-	 *                   **********************************************************************
-	 */
+	/*************************************************************************************************/
 
-	@GetMapping("/payment/success/{token}")
-	public RedirectView paymentSuccess(HttpServletResponse response,
-			@RequestParam("paymentId") String paymentId,
-			@RequestParam("PayerID") String payerId, @PathVariable("token") String token) throws Exception {
+	@GetMapping("/payment/create/{courseId}/{token}")
+	public RedirectView createPayment(@PathVariable("courseId") Integer courseId, @PathVariable("token") String token) {
 		try {
-			Integer userId = tokenUtil.tokenGetID(token);
-			System.out.println("userId " + userId);
-			// System.out.println("token " + token);
-			System.out.println("paymentId " + paymentId);
-			System.out.println("PayerID " + payerId);
+			// System.out.println(applyCouponRequest);
+			User user = userRepository.findById(tokenUtil.tokenGetID(token)).orElse(null);
+			if (user == null) {
+				log.error("User not found");
+				return new RedirectView("https://zakker.vercel.app/course/" + courseId);
+			}
+
+			Course course = courseRepository.findById(courseId).orElseThrow(
+					() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
+			if (course.getPrice().equals(0.0)) {
+				courseRepository.enrollCourse(tokenUtil.tokenGetID(token), courseId);
+				cartRepository.removeFromCart(tokenUtil.tokenGetID(token), courseId);
+				course.incrementNumberOfEnrollments();
+				courseRepository.save(course);
+				return new RedirectView("https://zakker.vercel.app/course/" + courseId);
+			}
+
+			Payment payment = paypalService.createPayment(course, token);
+			for (Links links : payment.getLinks()) {
+				if (links.getRel().equals("approval_url")) {
+					return new RedirectView(links.getHref());
+				}
+			}
+			return new RedirectView("https://zakker.vercel.app/course/" + courseId);
+		} catch (PayPalRESTException e) {
+			log.error(e.getMessage());
+			return new RedirectView("https://zakker.vercel.app/course/" + courseId);
+		}
+	}
+
+	/*********************************************************************************************************/
+
+	@GetMapping("/payment/checkout/success/{token}")
+	public RedirectView payment(HttpServletResponse response,
+			@RequestParam("paymentId") String paymentId,
+			@RequestParam("PayerID") String payerId, @PathVariable("token") String token)
+			throws Exception {
+		if (paymentSuccess(paymentId, payerId, token)) {
+			return new RedirectView("https://zakker.vercel.app/mycourses");
+		}
+
+		return new RedirectView("https://zakker.vercel.app/cart");
+
+	}
+
+	/*********************************************************************************************************/
+	@GetMapping("/payment/create/success/{token}/{courseId}")
+	public RedirectView paymentcreat(HttpServletResponse response,
+			@RequestParam("paymentId") String paymentId,
+			@RequestParam("PayerID") String payerId,
+			@PathVariable("token") String token,
+			@PathVariable("courseId") Integer courseId)
+			throws Exception {
+		if (paymentSuccess(paymentId, payerId, token)) {
+			return new RedirectView("https://zakker.vercel.app/course/" + courseId);
+		}
+
+		return new RedirectView("https://zakker.vercel.app/course/" + courseId);
+
+	}
+
+	/***************************************************************************************************** */
+	public Boolean paymentSuccess(
+			String paymentId,
+			String payerId, String token) throws Exception {
+		try {
 
 			List<TempTransactionUser> tempTransactionUserList = tempTransactionUserRepository
 					.findByPaymentIdAndUserId(paymentId, tokenUtil.tokenGetID(token));
 					if(tempTransactionUserList.size()==0) {
 						log.error("No transaction found");
-						return new RedirectView("https://zakker.vercel.app/cart");
+						return false;
 					}
 			
 			Payment payment = paypalService.executePayment(paymentId, payerId);
@@ -237,10 +252,6 @@ public class PaypalController {
 					tempTransactionUser.setConfirmed(true);
 
 					tempTransactionUser.setConfirmDate(LocalDateTime.now());
-					// if (tempTransactionUser.getCouponId() != null) {
-
-					// couponService.decrementCoupon(tempTransactionUser.getCouponId());
-					// }
 
 					Course course = courseRepository.findById(tempTransactionUser.getCourseId())
 							.orElseThrow(() -> new CustomException(
@@ -249,42 +260,30 @@ public class PaypalController {
 					courseRepository.enrollCourse(tempTransactionUser.getUserId(), tempTransactionUser.getCourseId());
 					cartRepository.removeFromCart(tokenUtil.tokenGetID(token), course.getId());
 					course.incrementNumberOfEnrollments();
+					Transaction transaction = new Transaction();
+					transaction.setCourse(course);
+					transaction.setUser(userRepository.findById(tempTransactionUser.getUserId()).get());
+					transaction.setPaymentDate(tempTransactionUser.getConfirmDate());
+					transaction.setPaymentMethod(tempTransactionUser.getPaymentMethod());
+					transaction.setPrice(tempTransactionUser.getPrice());
+					transactionRepository.save(transaction);
 
 					tempTransactionUserRepository.save(tempTransactionUser);
 				}
-				
-				return new RedirectView("https://zakker.vercel.app/mycourses");
-			// 	tempTransactionUser.setConfirmed(true);
 
-			// 	tempTransactionUser.setConfirmDate(LocalDateTime.now());
-			// 	if (tempTransactionUser.getCouponId() != null) {
-
-			// 		couponService.decrementCoupon(tempTransactionUser.getCouponId());
-			// 	}
-
-			// 	Course course = courseRepository.findById(tempTransactionUser.getCourseId())
-			// 			.orElseThrow(() -> new CustomException(
-			// 					"Course not found", HttpStatus.NOT_FOUND));
-
-			// 	courseRepository.enrollCourse(tempTransactionUser.getUserId(), tempTransactionUser.getCourseId());
-			// 	course.incrementNumberOfEnrollments();
-			// 	tempTransactionUserRepository.save(tempTransactionUser);
-
-			// 	response.sendRedirect("/course/public/get-course/" + tempTransactionUser.getCourseId());
-			// 	return;
 			}
+			return true;
 			
 		} catch (CustomException e) {
 			log.error(e.getMessage());
-			return new RedirectView("https://zakker.vercel.app/cart");
+			return false;
 		} catch (PayPalRESTException e) {
 
 			log.error(e.getMessage());
-			return new RedirectView("https://zakker.vercel.app/cart");
+			return false;
 		}
-		return new RedirectView("https://zakker.vercel.app/cart");
-
 	}
+	
 
 	/******************************
 	 * CANCEL PAYMENT ****************************************
@@ -300,7 +299,7 @@ public class PaypalController {
 	 */
 
 	@GetMapping("/payment/error")
-	public Response paymentError() {
-		return new Response(HttpStatus.BAD_REQUEST, "Payment error", null);
+	public RedirectView paymentError() {
+		return new RedirectView("https://zakker.vercel.app/cart");
 	}
 }
