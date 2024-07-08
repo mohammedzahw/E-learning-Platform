@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -75,23 +76,23 @@ public class PaypalController {
 	 * CREATE PAYMENT ****************************************
 	 */
 	@SecurityRequirement(name = "bearerAuth")
-	@GetMapping("/enroll-course")
-	public Response enrollCourse(@RequestBody ApplyCouponRequest coupon) {
+	@PostMapping("/enroll-course")
+	public Response enrollCourse(@RequestBody ApplyCouponRequest request) {
 	try {
-	Response response = couponService.applyCoupon(coupon);
+		Response response = couponService.applyCoupon(request);
 	if (response.getStatus() == HttpStatus.OK) {
 	User user = userRepository.findById(tokenUtil.getUserId())
 	.orElseThrow(() -> new CustomException("User not found",
 	HttpStatus.NOT_FOUND));
-	Course course = courseRepository.findById(coupon.getCourseId())
+	Course course = courseRepository.findById(request.getCourseId())
 	.orElseThrow(() -> new CustomException("Course not found",
 	HttpStatus.NOT_FOUND));
 	courseRepository.enrollCourse(user.getId(), course.getId());
-		
 
 	cartRepository.removeFromCart(user.getId(), course.getId());
 
 	course.incrementNumberOfEnrollments();
+	courseRepository.save(course);
 
 	return new Response(HttpStatus.OK, "Course enrolled successfully", null);
 
@@ -247,7 +248,7 @@ public class PaypalController {
 			Payment payment = paypalService.executePayment(paymentId, payerId);
 			if (payment.getState().equals("approved")) {
 				for (TempTransactionUser tempTransactionUser : tempTransactionUserList) {
-					System.out.println(tempTransactionUser);
+					// System.out.println(tempTransactionUser);
 					tempTransactionUser.setPaymentId(paymentId);
 					tempTransactionUser.setConfirmed(true);
 
