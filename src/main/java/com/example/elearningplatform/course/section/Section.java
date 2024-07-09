@@ -1,6 +1,5 @@
 package com.example.elearningplatform.course.section;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.example.elearningplatform.course.course.Course;

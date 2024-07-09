@@ -1,7 +1,5 @@
 package com.example.elearningplatform.course.lesson.dto;
 
-import java.math.BigDecimal;
-
 import com.example.elearningplatform.course.lesson.Lesson;
 
 import lombok.Data;

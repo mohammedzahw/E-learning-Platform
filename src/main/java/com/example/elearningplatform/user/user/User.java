@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.elearningplatform.course.course.Course;
 import com.example.elearningplatform.course.lesson.note.Note;
-
 import com.example.elearningplatform.user.role.Role;
 
 import jakarta.persistence.CascadeType;
@@ -26,7 +25,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;

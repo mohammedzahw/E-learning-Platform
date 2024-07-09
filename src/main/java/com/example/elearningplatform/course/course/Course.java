@@ -1,6 +1,5 @@
 package com.example.elearningplatform.course.course;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;

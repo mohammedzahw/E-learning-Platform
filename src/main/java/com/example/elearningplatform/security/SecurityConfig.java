@@ -98,10 +98,10 @@ public class SecurityConfig {
                 }));
 
         http.oauth2Login(login -> login.defaultSuccessUrl("/login/oauth2/success"));
-        // http.sessionManagement(session -> {
-        //     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement(session -> {
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        // });
+        });
         return http.build();
     }
 

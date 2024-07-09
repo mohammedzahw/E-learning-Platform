@@ -10,7 +10,6 @@ import com.example.elearningplatform.course.section.dto.SectionDto;
 import com.example.elearningplatform.course.tag.CourseTag;
 import com.example.elearningplatform.user.user.User;
 
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

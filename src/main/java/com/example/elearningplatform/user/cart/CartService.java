@@ -13,7 +13,6 @@ import com.example.elearningplatform.course.course.dto.SearchCourseDto;
 import com.example.elearningplatform.exception.CustomException;
 import com.example.elearningplatform.response.Response;
 import com.example.elearningplatform.security.TokenUtil;
-import com.example.elearningplatform.user.user.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -26,8 +25,7 @@ public class CartService {
     private TokenUtil tokenUtil;
     @Autowired
     private CourseRepository courseRepository;
-    @Autowired
-    private UserRepository userRepository;
+
     @Autowired
     private CourseService courseService;
     /************************************************************************************************************/
