@@ -65,7 +65,7 @@ public class PaypalService {
 
             Amount amount = new Amount();
             amount.setCurrency("USD");
-            amount.setTotal(String.format(Locale.forLanguageTag("en_US"), "%.2f", price));
+            amount.setTotal(String.format(Locale.forLanguageTag("en_US"), "%.2f", price * 0.021));
 
             Transaction transaction = new Transaction();
             transaction.setDescription(null);
@@ -94,7 +94,7 @@ public class PaypalService {
             tempTransactionUser.setCourseId(course.getId());
             tempTransactionUser.setUserId(userId);
    
-            tempTransactionUser.setPrice(((int) (price * 100 * 0.021)));
+            tempTransactionUser.setPrice(((int) (price * 100)));
             tempTransactionUser.setConfirmed(false);
       
             tempTransactionUser.setPaymentId(payment.getId());
