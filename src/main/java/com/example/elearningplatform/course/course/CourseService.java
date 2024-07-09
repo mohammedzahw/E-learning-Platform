@@ -201,7 +201,8 @@ public class CourseService {
             Integer[] courseDuration = new Integer[1];
             courseDuration[0] = 0;
             Integer[] sectionDuration = new Integer[1];
-            sectionDuration[0] = 0;
+            
+
 
             Course course = courseRepository.findByCourseId(courseId)
                             .orElseThrow(() -> new CustomException("Course not found", HttpStatus.NOT_FOUND));
@@ -222,6 +223,7 @@ public class CourseService {
                         .collect(Collectors.toList());
 
         sections.forEach(section -> {
+                sectionDuration[0] = 0;
                 List<LessonDto> lessons = sectionRepository.findSectionLessons(section.getId()).stream()
                                 .map(lesson -> {
                                        
