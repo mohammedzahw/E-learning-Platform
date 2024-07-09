@@ -94,7 +94,7 @@ public class PaypalService {
             tempTransactionUser.setCourseId(course.getId());
             tempTransactionUser.setUserId(userId);
    
-            tempTransactionUser.setPrice(((int) (price * 100)));
+            tempTransactionUser.setPrice(((int) (price * 100 * 0.021)));
             tempTransactionUser.setConfirmed(false);
       
             tempTransactionUser.setPaymentId(payment.getId());
