@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -98,10 +97,10 @@ public class SecurityConfig {
                 }));
 
         http.oauth2Login(login -> login.defaultSuccessUrl("/login/oauth2/success"));
-        http.sessionManagement(session -> {
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // http.sessionManagement(session -> {
+        //     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        });
+        // });
         return http.build();
     }
 
