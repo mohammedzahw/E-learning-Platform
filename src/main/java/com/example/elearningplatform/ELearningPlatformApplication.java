@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import com.example.elearningplatform.course.category.Category;
 import com.example.elearningplatform.course.category.CategoryRepository;
 
 import jakarta.transaction.Transactional;
@@ -49,7 +50,7 @@ public class ELearningPlatformApplication
         // Category category4 = new Category();
         // category4.setName("Photography");
         // category4.setDescription("Photography");
-        // categoryRepository.save(category4); 
+        // categoryRepository.save(category4);
         // Category category5 = new Category();
         // category5.setName("Music");
         // category5.setDescription("Music");

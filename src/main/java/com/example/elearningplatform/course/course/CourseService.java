@@ -224,8 +224,12 @@ public class CourseService {
         sections.forEach(section -> {
                 List<LessonDto> lessons = sectionRepository.findSectionLessons(section.getId()).stream()
                                 .map(lesson -> {
-                                        if (lesson.getDuration() == null) {
+                                       
+                                        if (lesson.getDuration() == null || lesson.getDuration() == 0) {
                                                 try {
+                                                        // System.out.println(getlessonDuration(course.getGuid(),
+                                                        // lesson.getGuid(), ApiKey));
+
                                                         lesson.setDuration(
                                                                         getlessonDuration(course.getGuid(),
                                                                                         lesson.getGuid(), ApiKey));
