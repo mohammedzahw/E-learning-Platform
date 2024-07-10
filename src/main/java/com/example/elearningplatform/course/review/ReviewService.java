@@ -34,6 +34,7 @@ public class ReviewService {
 
     public Response updateReview(UpdateReviewRequest request) {
         try {
+            // System.out.println(request);
             Review review = reviewRepository.findById(request.getReviewId())
                     .orElseThrow(() -> new CustomException("Review not found", HttpStatus.NOT_FOUND));
 
